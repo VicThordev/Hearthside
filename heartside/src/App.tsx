@@ -1,41 +1,30 @@
-import React, { useEffect, useState } from 'react';
+import React, { lazy, Suspense, useEffect, useState } from 'react';
 import { Sidebar } from './components/Sidebar';
 import { TopHeader } from './components/TopHeader';
-import { CalendarView } from './components/views/CalendarView';
-import { CareTeamView } from './components/views/CareTeamView';
-import { CareNotesView } from './components/views/CareNotesView';
-import { DocumentVaultView } from './components/views/DocumentVaultView';
-import { SettingsView } from './components/views/SettingsView';
-import { OverviewView } from './components/views/OverviewView';
-import { TasksView } from './components/views/TasksView';
-import { ServiceDirectoryView } from './components/views/ServiceDirectoryView';
-import { ReportsView } from './components/views/ReportsView';
-import { LandingPageView } from './components/views/LandingPageView';
-import { AuthView } from './components/views/AuthView';
 
-// Modals
-import { NewItemModal } from './components/modals/NewItemModal';
-import { EmergencyCardModal } from './components/modals/EmergencyCardModal';
-import { AuditLogModal } from './components/modals/AuditLogModal';
-import { PermissionMatrixModal } from './components/modals/PermissionMatrixModal';
-import { EscalationTestModal } from './components/modals/EscalationTestModal';
-import { DocumentPreviewModal } from './components/modals/DocumentPreviewModal';
 import { useAuth } from './auth/AuthProvider';
 import { apiFetch } from './lib/api';
-import { CircleSetupView } from './components/views/CircleSetupView';
 import { DemoBanner } from './components/DemoBanner';
 import { isDemoMode } from './lib/runtime';
 
-// Initial Data
-import {
-  INITIAL_CAREGIVERS,
-  INITIAL_PENDING_INVITES,
-  INITIAL_SCHEDULE_EVENTS,
-  INITIAL_CARE_NOTES,
-  INITIAL_VAULT_DOCUMENTS,
-  INITIAL_INVOICES,
-  INITIAL_NOTIFICATIONS
-} from './data/mockData';
+const CalendarView = lazy(() => import('./components/views/CalendarView').then(({ CalendarView }) => ({ default: CalendarView })));
+const LandingPageView = lazy(() => import('./components/views/LandingPageView').then(({ LandingPageView }) => ({ default: LandingPageView })));
+const AuthView = lazy(() => import('./components/views/AuthView').then(({ AuthView }) => ({ default: AuthView })));
+const CircleSetupView = lazy(() => import('./components/views/CircleSetupView').then(({ CircleSetupView }) => ({ default: CircleSetupView })));
+const CareTeamView = lazy(() => import('./components/views/CareTeamView').then(({ CareTeamView }) => ({ default: CareTeamView })));
+const CareNotesView = lazy(() => import('./components/views/CareNotesView').then(({ CareNotesView }) => ({ default: CareNotesView })));
+const DocumentVaultView = lazy(() => import('./components/views/DocumentVaultView').then(({ DocumentVaultView }) => ({ default: DocumentVaultView })));
+const SettingsView = lazy(() => import('./components/views/SettingsView').then(({ SettingsView }) => ({ default: SettingsView })));
+const OverviewView = lazy(() => import('./components/views/OverviewView').then(({ OverviewView }) => ({ default: OverviewView })));
+const TasksView = lazy(() => import('./components/views/TasksView').then(({ TasksView }) => ({ default: TasksView })));
+const ServiceDirectoryView = lazy(() => import('./components/views/ServiceDirectoryView').then(({ ServiceDirectoryView }) => ({ default: ServiceDirectoryView })));
+const ReportsView = lazy(() => import('./components/views/ReportsView').then(({ ReportsView }) => ({ default: ReportsView })));
+const NewItemModal = lazy(() => import('./components/modals/NewItemModal').then(({ NewItemModal }) => ({ default: NewItemModal })));
+const EmergencyCardModal = lazy(() => import('./components/modals/EmergencyCardModal').then(({ EmergencyCardModal }) => ({ default: EmergencyCardModal })));
+const AuditLogModal = lazy(() => import('./components/modals/AuditLogModal').then(({ AuditLogModal }) => ({ default: AuditLogModal })));
+const PermissionMatrixModal = lazy(() => import('./components/modals/PermissionMatrixModal').then(({ PermissionMatrixModal }) => ({ default: PermissionMatrixModal })));
+const EscalationTestModal = lazy(() => import('./components/modals/EscalationTestModal').then(({ EscalationTestModal }) => ({ default: EscalationTestModal })));
+const DocumentPreviewModal = lazy(() => import('./components/modals/DocumentPreviewModal').then(({ DocumentPreviewModal }) => ({ default: DocumentPreviewModal })));
 
 import {
   ViewMode,
@@ -48,19 +37,21 @@ import {
   NotificationItem
 } from './types';
 
+type CircleSummary = { id: string; name: string; timezone: string };
+
 export default function App() {
   const { user, loading, signOut } = useAuth();
   const [currentView, setCurrentView] = useState<ViewMode>('landing');
   const [authMode, setAuthMode] = useState<'signup' | 'login'>('signup');
   
   // App state
-  const [events, setEvents] = useState<ScheduleEvent[]>(isDemoMode ? INITIAL_SCHEDULE_EVENTS : []);
-  const [caregivers, setCaregivers] = useState<Caregiver[]>(isDemoMode ? INITIAL_CAREGIVERS : []);
-  const [pendingInvites, setPendingInvites] = useState<PendingInvite[]>(isDemoMode ? INITIAL_PENDING_INVITES : []);
-  const [notes, setNotes] = useState<CareNote[]>(isDemoMode ? INITIAL_CARE_NOTES : []);
-  const [documents, setDocuments] = useState<VaultDocument[]>(isDemoMode ? INITIAL_VAULT_DOCUMENTS : []);
-  const [invoices] = useState<Invoice[]>(isDemoMode ? INITIAL_INVOICES : []);
-  const [notifications, setNotifications] = useState<NotificationItem[]>(isDemoMode ? INITIAL_NOTIFICATIONS : []);
+  const [events, setEvents] = useState<ScheduleEvent[]>([]);
+  const [caregivers, setCaregivers] = useState<Caregiver[]>([]);
+  const [pendingInvites, setPendingInvites] = useState<PendingInvite[]>([]);
+  const [notes, setNotes] = useState<CareNote[]>([]);
+  const [documents, setDocuments] = useState<VaultDocument[]>([]);
+  const [invoices, setInvoices] = useState<Invoice[]>([]);
+  const [notifications, setNotifications] = useState<NotificationItem[]>([]);
 
   // Modal states
   const [newModalType, setNewModalType] = useState<'event' | 'note' | 'doc' | 'invite' | null>(null);
@@ -71,20 +62,38 @@ export default function App() {
   const [previewDoc, setPreviewDoc] = useState<VaultDocument | null>(null);
   const [showSwitchCircleNotice, setShowSwitchCircleNotice] = useState(false);
   const [circleState, setCircleState] = useState<'loading' | 'ready' | 'needs-setup' | 'error'>('loading');
+  const [circles, setCircles] = useState<CircleSummary[]>([]);
+  const [circleReload, setCircleReload] = useState(0);
+
+  useEffect(() => {
+    if (!isDemoMode) return;
+    void import('./data/mockData').then((data) => {
+      setEvents(data.INITIAL_SCHEDULE_EVENTS);
+      setCaregivers(data.INITIAL_CAREGIVERS);
+      setPendingInvites(data.INITIAL_PENDING_INVITES);
+      setNotes(data.INITIAL_CARE_NOTES);
+      setDocuments(data.INITIAL_VAULT_DOCUMENTS);
+      setInvoices(data.INITIAL_INVOICES);
+      setNotifications(data.INITIAL_NOTIFICATIONS);
+    });
+  }, []);
 
   useEffect(() => {
     if (!user) { setCircleState('loading'); return; }
     let cancelled = false;
-    void apiFetch<{ data: Array<{ care_circles: { id: string } | null }> }>('/api/v1/circles')
+    void apiFetch<{ data: Array<{ care_circles: CircleSummary | null }> }>('/api/v1/circles')
       .then(({ data }) => {
         if (cancelled) return;
-        const circleId = data[0]?.care_circles?.id;
+        const availableCircles = data.flatMap(({ care_circles }) => care_circles ? [care_circles] : []);
+        setCircles(availableCircles);
+        const storedCircleId = localStorage.getItem('hearthside.activeCircleId');
+        const circleId = availableCircles.some(({ id }) => id === storedCircleId) ? storedCircleId : availableCircles[0]?.id;
         if (circleId) { localStorage.setItem('hearthside.activeCircleId', circleId); setCircleState('ready'); }
         else setCircleState('needs-setup');
       })
       .catch(() => { if (!cancelled) setCircleState('error'); });
     return () => { cancelled = true; };
-  }, [user]);
+  }, [user, circleReload]);
 
   // Handlers
   const handleAddEvent = (newEvent: Partial<ScheduleEvent>) => {
@@ -159,18 +168,23 @@ export default function App() {
     setNotifications(notifications.filter(n => n.id !== id));
   };
 
+  const openPreviewOnlyWorkflow = (type: 'event' | 'note' | 'doc' | 'invite') => {
+    if (isDemoMode) setNewModalType(type);
+    else alert('This workflow is unavailable until its screen is connected to the authenticated API.');
+  };
+
   // Dedicated full-width experience for Public Landing Page
   if (currentView === 'landing') {
     return (
       <div className="relative min-h-screen w-full bg-[#FCFDFE]">
         {isDemoMode && <DemoBanner />}
-        <LandingPageView
+        <Suspense fallback={<div className="min-h-screen grid place-items-center">Loading preview…</div>}><LandingPageView
           onEnterApp={(view) => setCurrentView(user ? (view || 'overview') : 'auth')}
           onOpenAuth={(mode) => {
             setAuthMode(mode || 'signup');
             setCurrentView('auth');
           }}
-        />
+        /></Suspense>
         
         {/* Floating Quick Action to jump directly to Active Care Circle */}
         <div className="fixed bottom-6 right-6 z-50">
@@ -189,7 +203,7 @@ export default function App() {
   // Dedicated Sign Up / Log In View
   if (currentView === 'auth') {
     return (
-      <>{isDemoMode && <DemoBanner />}<AuthView initialMode={authMode} onSuccess={(view) => setCurrentView(view || 'overview')} onBackToLanding={() => setCurrentView('landing')} /></>
+      <>{isDemoMode && <DemoBanner />}<Suspense fallback={<div className="min-h-screen grid place-items-center">Loading sign-in…</div>}><AuthView initialMode={authMode} onSuccess={(view) => setCurrentView(view || 'overview')} onBackToLanding={() => setCurrentView('landing')} /></Suspense></>
     );
   }
 
@@ -198,7 +212,7 @@ export default function App() {
   }
 
   if (!user) {
-    return <><>{isDemoMode && <DemoBanner />}</><AuthView initialMode="login" onSuccess={() => setCurrentView('overview')} onBackToLanding={() => setCurrentView('landing')} /></>;
+    return <><>{isDemoMode && <DemoBanner />}</><Suspense fallback={<div className="min-h-screen grid place-items-center">Loading sign-in…</div>}><AuthView initialMode="login" onSuccess={() => setCurrentView('overview')} onBackToLanding={() => setCurrentView('landing')} /></Suspense></>;
   }
 
   if (circleState === 'loading') {
@@ -206,15 +220,17 @@ export default function App() {
   }
 
   if (circleState === 'needs-setup') {
-    return <CircleSetupView onComplete={() => setCircleState('ready')} />;
+    return <Suspense fallback={<div className="min-h-screen grid place-items-center">Loading setup…</div>}><CircleSetupView onComplete={() => { setCircleState('loading'); setCircleReload((value) => value + 1); }} /></Suspense>;
   }
 
   if (circleState === 'error') {
-    return <div className="min-h-screen grid place-items-center bg-[#F6F9FF] p-6 text-center"><div><p className="font-semibold text-[#081d2c]">We could not load your Care Circle.</p><p className="mt-2 text-sm text-[#64748B]">Confirm that the API server is running and your Supabase environment variables are configured.</p></div></div>;
+    return <div className="min-h-screen grid place-items-center bg-[#F6F9FF] p-6 text-center"><div><p className="font-semibold text-[#081d2c]">We could not load your Care Circle.</p><p className="mt-2 text-sm text-[#64748B]">Confirm that the API server is running and your Supabase environment variables are configured.</p><button onClick={() => { setCircleState('loading'); setCircleReload((value) => value + 1); }} className="mt-4 rounded-lg bg-[#00685f] px-4 py-2 text-sm font-semibold text-white">Try again</button></div></div>;
   }
 
   return (
+    <Suspense fallback={<div className="min-h-screen grid place-items-center bg-[#F6F9FF] text-sm text-[#475569]">Loading view…</div>}>
     <div className="flex h-screen w-screen overflow-hidden bg-[#F6F9FF] text-[#081d2c] font-sans">
+      <a className="skip-link" href="#main-content">Skip to main content</a>
       {/* Left Sidebar */}
       <Sidebar
         currentView={currentView}
@@ -231,7 +247,7 @@ export default function App() {
         <TopHeader
           currentView={currentView}
           notifications={notifications}
-          onOpenNewModal={(type) => setNewModalType(type)}
+          onOpenNewModal={openPreviewOnlyWorkflow}
           onSearchSelect={(term) => {
             if (term.toLowerCase().includes('doc') || term.toLowerCase().includes('poa')) {
               setCurrentView('vault');
@@ -249,11 +265,11 @@ export default function App() {
         />
 
         {/* View Switcher Container */}
-        <main className="flex-1 flex overflow-hidden">
+        <main id="main-content" className="flex-1 flex overflow-hidden" tabIndex={-1}>
           {currentView === 'calendar' && (
             <CalendarView
               events={events}
-              onNewEventClick={() => setNewModalType('event')}
+              onNewEventClick={() => openPreviewOnlyWorkflow('event')}
             />
           )}
 
@@ -261,7 +277,7 @@ export default function App() {
             <CareTeamView
               caregivers={caregivers}
               pendingInvites={pendingInvites}
-              onInviteClick={() => setNewModalType('invite')}
+              onInviteClick={() => openPreviewOnlyWorkflow('invite')}
               onAuditLogClick={() => setShowAuditLog(true)}
               onPermissionMatrixClick={() => setShowPermissionMatrix(true)}
               onTestEscalationClick={() => setShowEscalationTest(true)}
@@ -272,7 +288,7 @@ export default function App() {
             <CareNotesView
               notes={notes}
               onAddNote={handleAddNote}
-              onPostUpdateClick={() => setNewModalType('note')}
+              onPostUpdateClick={() => openPreviewOnlyWorkflow('note')}
             />
           )}
 
@@ -282,7 +298,7 @@ export default function App() {
               onUploadClick={() => alert(isDemoMode ? 'Document upload is simulated in this preview.' : 'Document upload is not enabled in this release.')}
               onPreviewDocument={(doc) => setPreviewDoc(doc)}
               onPrintEmergencyCard={() => setShowEmergencyCard(true)}
-              onRequestRecordsClick={() => alert('Generating medical records authorization request for Dr. Chen Clinic')}
+              onRequestRecordsClick={() => alert('Medical-record requests are not enabled in this release.')}
               onAuditLogClick={() => setShowAuditLog(true)}
             />
           )}
@@ -352,11 +368,15 @@ export default function App() {
               Switch Care Circle
             </h3>
             <p className="text-xs text-[#64748B] leading-relaxed">
-              You are currently viewing <strong>Eleanor Vance's Care Circle</strong> (Active). All HIPAA health records and live emergency beacons are scoped to this circle.
+              Choose a Care Circle. Access is checked by the server for every API request.
             </p>
-            <div className="p-3 rounded-xl bg-[#E1F0FF] border border-[#CBD5E1] text-xs font-semibold text-[#00685f] flex items-center justify-between">
-              <span>● Eleanor Vance (Portland, OR)</span>
-              <span>Selected</span>
+            <div className="space-y-2">
+              {circles.map((circle) => {
+                const selected = localStorage.getItem('hearthside.activeCircleId') === circle.id;
+                return <button key={circle.id} onClick={() => { localStorage.setItem('hearthside.activeCircleId', circle.id); setShowSwitchCircleNotice(false); }} className={`w-full p-3 rounded-xl border text-left text-xs font-semibold flex items-center justify-between ${selected ? 'bg-[#E1F0FF] border-[#00685f] text-[#00685f]' : 'bg-white border-[#CBD5E1] text-[#081d2c]'}`}>
+                  <span>{circle.name}</span><span>{selected ? 'Selected' : 'Select'}</span>
+                </button>;
+              })}
             </div>
             <div className="flex justify-end gap-2 pt-2">
               <button
@@ -370,5 +390,6 @@ export default function App() {
         </div>
       )}
     </div>
+    </Suspense>
   );
 }

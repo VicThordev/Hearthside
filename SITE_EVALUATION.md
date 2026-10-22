@@ -179,3 +179,23 @@ The following code-level controls have been added since the initial review:
 - CI now runs client/server type checks, server permission tests, and a production build on pushes and pull requests; supported Node/npm versions are declared.
 
 These changes make the current preview materially safer and reduce several backend risks. They **do not** close B-02, B-03, B-05, or B-06 for a real-data release: the main UI has not yet been converted from all mock workflows, the vault has no scan/upload pipeline, external Supabase Auth configuration cannot be verified without credentials, and test coverage/operational readiness remain incomplete.
+
+## High-priority remediation update — 22 October 2026
+
+- **H-01:** Global API rate limiting, request-size limits, and server request/header timeouts are now configured.
+- **H-02:** Zod validation errors now produce 400 responses with field-level details rather than generic 500 errors.
+- **H-03:** Care-circle creation now uses the `create_care_circle` transactional Supabase RPC in migration `202610220003_transactional_circle_creation.sql`.
+- **H-04:** Core API actions now record an authenticated member ID; the audit table has an append-only database trigger. Audit coverage is not yet complete for every future endpoint/integration.
+- **H-05:** Request IDs, JSON request-completion events, privacy-safe error events, `/healthz`, `/readyz`, and server timeouts are implemented. External error monitoring, metric retention, and alerting remain deployment work.
+- **H-06:** Migration `202610220004_domain_and_audit_hardening.sql` introduces the foundational task, comment, invite, notification, medication, and vital-reading domains. Their API/UI workflows still need to be built deliberately.
+- **H-07:** In live mode, top-level new-item, invite, event, note, vault upload, and medical-record-request flows are blocked until connected to authenticated APIs. Preview mode remains explicitly marked as fictional.
+- **H-08:** The preview warning and claim removals reduce the chance that fixture data is mistaken for operational data. A separate fixture/development-only bundle remains future cleanup work.
+
+## Medium-priority remediation update — 22 October 2026
+
+- **M-01:** Node/npm engine constraints and `.nvmrc` are now committed; CI installs from the lockfile.
+- **M-02:** Portal views are lazy-loaded with React `Suspense`, and Vite now uses `import.meta.dirname`, eliminating its native-config-loader warning.
+- **M-03:** The selected circle is validated against API memberships during bootstrap; users can select from their server-returned circles and recover from loading failures with a retry control.
+- **M-04:** The README now records the browser/Auth/API/Supabase boundary and the consequence of using a service-role client.
+- **M-05:** Auth and circle bootstrap now present loading, failure, and retry states; live-mode workflows report that they are unavailable rather than pretending to persist.
+- **M-06:** A skip-to-content link, visible keyboard focus treatment, and focusable main landmark have been added. Automated and assistive-technology accessibility testing is still required before release.

@@ -16,7 +16,27 @@
   h1, h2, h3, h4, h5, h6 {
     font-family: var(--font-display);
   }
+
+  :focus-visible {
+    outline: 3px solid #00685f;
+    outline-offset: 3px;
+  }
 }
+
+.skip-link {
+  position: fixed;
+  top: 0.5rem;
+  left: 0.5rem;
+  z-index: 100;
+  transform: translateY(-200%);
+  background: #081d2c;
+  color: white;
+  border-radius: 0.5rem;
+  padding: 0.5rem 0.75rem;
+  font-size: 0.875rem;
+}
+
+.skip-link:focus { transform: translateY(0); }
 
 .font-display {
   font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;

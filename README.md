@@ -103,6 +103,12 @@ Browser
 
 Use managed services with documented disaster recovery rather than operating a single long-lived virtual machine. A single VM can host a demo, but it is an unsuitable foundation for sensitive, multi-user care data.
 
+### Client and API boundary
+
+The browser uses Supabase only for authentication with the public anon key. Domain data is accessed through the Express API, which validates the bearer token and rechecks care-circle membership and role capability before each operation. The selected circle stored in browser storage is a convenience preference only; it is never trusted as authorization.
+
+Keep the Supabase service-role key exclusively in the API environment. Because that key bypasses Supabase RLS, every new API or storage endpoint must authenticate, authorize, validate input, and emit an audit event before accessing data.
+
 ## Product work required before connecting the UI
 
 1. Define the data model and ownership boundaries: user, care circle, recipient, membership, caregiver role, invite, schedule event, task, note, document, notification, audit event, and billing entitlement.

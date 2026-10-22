@@ -8,6 +8,7 @@ import { config } from './config.js';
 import { ApiError, errorHandler, notFound } from './http.js';
 import { requireCapability, requireUser } from './auth.js';
 import { supabase } from './supabase.js';
+import { logger } from './logger.js';
 
 const app = express();
 app.disable('x-powered-by');
@@ -20,7 +21,8 @@ app.use(((req, res, next) => {
   const requestId = crypto.randomUUID();
   res.setHeader('X-Request-Id', requestId);
   const startedAt = Date.now();
-  res.on('finish', () => console.info(JSON.stringify({ requestId, method: req.method, path: req.path, status: res.statusCode, durationMs: Date.now() - startedAt })));
+  res.locals.requestId = requestId;
+  res.on('finish', () => logger.info('request_completed', { requestId, method: req.method, path: req.path, status: res.statusCode, durationMs: Date.now() - startedAt }));
   next();
 }) satisfies RequestHandler);
 
@@ -28,6 +30,12 @@ app.get('/healthz', async (_req, res, next) => {
   const { error } = await supabase.from('care_circles').select('id', { head: true, count: 'exact' }).limit(1);
   if (error) return next(new ApiError(503, 'Database is unavailable.'));
   res.json({ status: 'ok', service: 'hearthside-api' });
+});
+
+app.get('/readyz', async (_req, res, next) => {
+  const { error } = await supabase.from('care_circles').select('id', { head: true, count: 'exact' }).limit(1);
+  if (error) return next(new ApiError(503, 'Database is unavailable.'));
+  res.json({ status: 'ready' });
 });
 
 const circleSchema = z.object({
@@ -158,4 +166,6 @@ app.get('/api/v1/documents/:id/download-url', async (req, res, next) => {
 app.use(notFound);
 app.use(errorHandler);
 
-app.listen(config.PORT, () => console.info(`Hearthside API listening on ${config.PORT}`));
+const server = app.listen(config.PORT, () => logger.info('server_started', { port: config.PORT, environment: config.NODE_ENV }));
+server.requestTimeout = 15_000;
+server.headersTimeout = 20_000;
