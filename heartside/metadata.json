@@ -1,0 +1,8 @@
+{
+  "name": "Hearthside Care Coordination Hub",
+  "description": "Collaborative elder care coordination hub for families and caregivers: shared schedules, medication handoffs, daily care notes, HIPAA-conscious document vault, and emergency care network.",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}
