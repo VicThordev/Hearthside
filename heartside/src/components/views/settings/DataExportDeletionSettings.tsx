@@ -258,7 +258,7 @@ export const DataExportDeletionSettings: React.FC = () => {
             <div>
               <span className="text-xs font-bold text-[#081d2c] block">Automated Weekly Encrypted Backup</span>
               <span className="text-[11px] text-[#64748B] block mt-0.5">
-                Backups stored in HIPAA-compliant AWS GovCloud (US-West)
+                Backup and retention controls are not configured in this preview
               </span>
             </div>
             <input
@@ -305,7 +305,7 @@ export const DataExportDeletionSettings: React.FC = () => {
         </div>
 
         <p className="text-xs text-red-800/80 leading-relaxed">
-          Transferring ownership reassigns primary billing authority and legal directives. Deactivating the circle will cancel all live synchronization with Eleanor's Bedside Smart Frame and initiate a 30-day HIPAA recovery grace window.
+          Ownership transfer, deactivation, and device synchronization are not available in this preview.
         </p>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">

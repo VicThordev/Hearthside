@@ -175,7 +175,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
               <div className="w-full bg-slate-200 h-1.5 rounded-full mt-2 overflow-hidden">
                 <div className="bg-[#00685f] h-full rounded-full w-1/3" />
               </div>
-              <div className="text-[10px] text-[#64748B] mt-1.5">32% of encrypted cloud vault</div>
+              <div className="text-[10px] text-[#64748B] mt-1.5">Preview storage estimate</div>
             </div>
 
             <div className="p-3 rounded-xl bg-[#F8FAFC] border border-[#E2E8F0]">
@@ -710,7 +710,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
                 Complete Archive Export
               </h3>
               <span className="text-[11px] text-[#00685f] font-semibold">
-                HIPAA-compliant encrypted data package
+                Preview-only data package
               </span>
             </div>
           </div>

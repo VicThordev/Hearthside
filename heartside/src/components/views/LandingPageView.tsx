@@ -66,7 +66,7 @@ export const LandingPageView: React.FC<LandingPageViewProps> = ({ onEnterApp, on
     },
     {
       q: 'Is Hearthside HIPAA compliant?',
-      a: 'Hearthside is architected following strict HIPAA standards and zero-trust security guidelines. All communications and files are encrypted using AES-256 at rest and TLS 1.3 in transit, and we execute Business Associate Agreements (BAAs) with professional care partners.'
+      a: 'Not yet. Hearthside is currently a preview application and is not approved for real health information. Compliance, vendor agreements, security controls, and operational procedures must be completed before any such use.'
     },
     {
       q: 'What happens if a sibling lives in another time zone?',
@@ -663,7 +663,7 @@ export const LandingPageView: React.FC<LandingPageViewProps> = ({ onEnterApp, on
               </p>
             </div>
             <div className="text-[11px] font-medium text-[#3B82F6] bg-[#EFF6FF] px-2.5 py-1 rounded-md inline-block self-start">
-              Encrypted with AES-256 at rest
+              Preview-only fictional data
             </div>
           </div>
 
@@ -1147,7 +1147,7 @@ export const LandingPageView: React.FC<LandingPageViewProps> = ({ onEnterApp, on
                   Bank-Level Encryption
                 </h3>
                 <p className="text-xs text-[#64748b] leading-relaxed">
-                  End-to-end TLS 1.3 protocol in transit and AES-256 bit encryption at rest for all stored records, vital logs, and shared care documents.
+                  Security architecture and operational controls are still under development; do not submit real records in this preview.
                 </p>
               </div>
             </div>
@@ -1174,7 +1174,7 @@ export const LandingPageView: React.FC<LandingPageViewProps> = ({ onEnterApp, on
                   <Shield className="w-5 h-5" />
                 </div>
                 <h3 className="text-sm font-bold text-[#0f172a] mb-2">
-                  HIPAA Conscious
+                  Preview safeguards
                 </h3>
                 <p className="text-xs text-[#64748b] leading-relaxed">
                   Architected in strict alignment with United States Department of Health and Human Services privacy rules and modern zero-trust protocols.
@@ -1288,7 +1288,7 @@ export const LandingPageView: React.FC<LandingPageViewProps> = ({ onEnterApp, on
                 </span>
                 <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md bg-[#E6F4F1] text-[10px] font-semibold text-[#00685f]">
                   <ShieldCheck className="w-3 h-3" />
-                  HIPAA Ready Security
+                  Security roadmap
                 </span>
               </div>
             </div>

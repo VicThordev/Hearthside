@@ -27,13 +27,15 @@ interface SidebarProps {
   onViewChange: (view: ViewMode) => void;
   onUpgradeClick?: () => void;
   onSwitchCircle?: () => void;
+  onSignOut?: () => void;
 }
 
 export const Sidebar: React.FC<SidebarProps> = ({
   currentView,
   onViewChange,
   onUpgradeClick,
-  onSwitchCircle
+  onSwitchCircle,
+  onSignOut
 }) => {
   const [collapsed, setCollapsed] = useState(false);
   const [showUserMenu, setShowUserMenu] = useState(false);
@@ -274,7 +276,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
               <button
                 onClick={() => {
                   setShowUserMenu(false);
-                  onViewChange('auth');
+                  onSignOut?.();
                 }}
                 className="w-full text-left px-3 py-2 text-xs text-red-600 hover:bg-red-50 rounded-lg flex items-center justify-between cursor-pointer"
               >

@@ -437,7 +437,7 @@ export const MedicalClinicalRecordsSegment: React.FC<MedicalClinicalRecordsSegme
                 <div className="flex items-center gap-3 text-[11px] text-[#64748B]">
                   <span className="flex items-center gap-1">
                     <ShieldCheck className="w-3.5 h-3.5 text-[#00685f]" />
-                    <span>AES-256 Encrypted</span>
+                    <span>Preview document</span>
                   </span>
                   <span>•</span>
                   <span>Downloaded {doc.downloadCount || 4} times</span>

@@ -196,7 +196,7 @@ export const OverviewView: React.FC<OverviewViewProps> = ({
                 <h3 className="font-bold text-sm text-[#081d2c]">Care Safeguards</h3>
               </div>
               <span className="text-[10px] font-semibold text-[#00685f] bg-[#E1F0FF] px-2 py-0.5 rounded-full">
-                HIPAA Protected
+                Preview only
               </span>
             </div>
 

@@ -21,7 +21,7 @@ export const DocumentPreviewModal: React.FC<DocumentPreviewModalProps> = ({
             <Lock className="w-5 h-5 text-[#00685f]" />
             <div>
               <h2 className="font-bold text-sm text-[#081d2c]">{document.title}</h2>
-              <div className="text-[11px] text-[#64748B]">AES-256 Decrypted View • Authorized: Sarah Vance</div>
+              <div className="text-[11px] text-[#64748B]">Fictional preview document</div>
             </div>
           </div>
           <button onClick={onClose} className="p-1 text-slate-400 hover:text-slate-600 rounded-lg">

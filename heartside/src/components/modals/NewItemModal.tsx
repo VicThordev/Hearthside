@@ -342,7 +342,7 @@ export const NewItemModal: React.FC<NewItemModalProps> = ({
               <div className="p-6 border-2 border-dashed border-[#CBD5E1] rounded-xl text-center bg-[#F8FAFC]">
                 <Upload className="w-8 h-8 text-[#00685f] mx-auto mb-2" />
                 <div className="font-semibold text-xs text-[#081d2c]">Drag and drop PDF, PNG, or JPG</div>
-                <div className="text-[10px] text-[#64748B] mt-0.5">Encrypted with AES-256 before storage</div>
+                <div className="text-[10px] text-[#64748B] mt-0.5">Uploads are unavailable for real records in this preview</div>
               </div>
 
               <div className="pt-3 border-t border-[#E2E8F0] flex justify-end gap-2">

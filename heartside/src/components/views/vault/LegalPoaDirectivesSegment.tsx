@@ -167,7 +167,7 @@ export const LegalPoaDirectivesSegment: React.FC<LegalPoaDirectivesSegmentProps>
                   <CheckCircle2 className="w-3.5 h-3.5" /> 5 Validated Directives on File
                 </span>
                 <span className="text-[10px] font-bold text-red-700 bg-red-100 px-2 py-0.5 rounded-full flex items-center gap-1">
-                  <Lock className="w-3 h-3" /> 2FA Protected
+                  <Lock className="w-3 h-3" /> Preview only
                 </span>
               </div>
               <h2 className="text-xl md:text-2xl font-bold font-display text-[#081d2c] tracking-tight mt-1">

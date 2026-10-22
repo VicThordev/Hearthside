@@ -480,7 +480,7 @@ export const AllDocumentsSegment: React.FC<AllDocumentsSegmentProps> = ({
               <div className="pt-2 border-t border-[#F1F5F9] flex items-center justify-between text-xs text-[#64748B]">
                 <span className="flex items-center gap-1 text-[11px]">
                   <ShieldCheck className="w-3.5 h-3.5 text-[#00685f]" />
-                  <span>{doc.watermarkNote || 'AES-256 Encrypted • Watermarked'}</span>
+                  <span>{doc.watermarkNote || 'Preview document • fictional data'}</span>
                 </span>
 
                 <div className="flex items-center gap-2">

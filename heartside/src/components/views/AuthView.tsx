@@ -18,6 +18,7 @@ import {
   CheckCircle2
 } from 'lucide-react';
 import { ViewMode } from '../../types';
+import { useAuth } from '../../auth/AuthProvider';
 
 interface AuthViewProps {
   initialMode?: 'signup' | 'login';
@@ -30,10 +31,11 @@ export const AuthView: React.FC<AuthViewProps> = ({
   onSuccess,
   onBackToLanding
 }) => {
+  const { signIn, signUp, signInWithMagicLink, signInWithOAuth, resetPassword } = useAuth();
   const [mode, setMode] = useState<'signup' | 'login'>(initialMode);
-  const [fullName, setFullName] = useState('Sarah Vance');
-  const [email, setEmail] = useState('sarah.vance@example.com');
-  const [password, setPassword] = useState('Hearthside2026!');
+  const [fullName, setFullName] = useState('');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [hasInviteCode, setHasInviteCode] = useState(false);
   const [inviteCode, setInviteCode] = useState('VANCE-PORTLAND-79');
@@ -41,6 +43,9 @@ export const AuthView: React.FC<AuthViewProps> = ({
   const [showSeniorHelpModal, setShowSeniorHelpModal] = useState(false);
   const [seniorPin, setSeniorPin] = useState('');
   const [seniorPinSuccess, setSeniorPinSuccess] = useState(false);
+  const [authError, setAuthError] = useState<string | null>(null);
+  const [authNotice, setAuthNotice] = useState<string | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Password strength calculation
   const getPasswordStrength = (pwd: string) => {
@@ -55,17 +60,43 @@ export const AuthView: React.FC<AuthViewProps> = ({
 
   const strength = getPasswordStrength(password);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Successfully authenticated, navigate into Eleanor Vance's Care Circle
-    onSuccess('overview');
+    setAuthError(null); setAuthNotice(null); setIsSubmitting(true);
+    try {
+      if (mode === 'signup') {
+        const result = await signUp(email, password, fullName);
+        if (result.needsEmailConfirmation) {
+          setAuthNotice('Check your inbox to confirm your email, then return here to sign in.');
+        } else {
+          onSuccess('overview');
+        }
+      } else {
+        await signIn(email, password);
+        onSuccess('overview');
+      }
+    } catch (error) {
+      setAuthError(error instanceof Error ? error.message : 'Unable to complete authentication.');
+    } finally { setIsSubmitting(false); }
   };
 
-  const handleMagicLink = () => {
-    setMagicLinkSent(true);
-    setTimeout(() => {
-      setMagicLinkSent(false);
-    }, 4000);
+  const handleMagicLink = async () => {
+    setAuthError(null); setAuthNotice(null);
+    try {
+      await signInWithMagicLink(email);
+      setMagicLinkSent(true); setAuthNotice(`Magic link sent to ${email}.`);
+    } catch (error) { setAuthError(error instanceof Error ? error.message : 'Unable to send magic link.'); }
+  };
+
+  const handleOAuth = async (provider: 'google' | 'apple') => {
+    setAuthError(null);
+    try { await signInWithOAuth(provider); } catch (error) { setAuthError(error instanceof Error ? error.message : 'Unable to start social sign-in.'); }
+  };
+
+  const handlePasswordReset = async () => {
+    setAuthError(null); setAuthNotice(null);
+    try { await resetPassword(email); setAuthNotice(`Password reset instructions were sent to ${email}.`); }
+    catch (error) { setAuthError(error instanceof Error ? error.message : 'Unable to send password reset instructions.'); }
   };
 
   const handleSeniorPinSubmit = (e: React.FormEvent) => {
@@ -114,7 +145,7 @@ export const AuthView: React.FC<AuthViewProps> = ({
         {/* Security Pill */}
         <div className="mt-3 inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full bg-[#E8F4F1] border border-[#CCE8E2] text-[11px] font-medium text-[#00685f] shadow-2xs">
           <ShieldCheck className="w-3.5 h-3.5" />
-          <span>HIPAA & State Privacy Compliant • 256-bit Encrypted</span>
+          <span>Private preview • Security controls are under active development</span>
         </div>
       </div>
 
@@ -165,7 +196,7 @@ export const AuthView: React.FC<AuthViewProps> = ({
           {/* Continue with Google */}
           <button
             type="button"
-            onClick={() => onSuccess('overview')}
+            onClick={() => void handleOAuth('google')}
             className="w-full flex items-center justify-center gap-3 py-3 px-4 rounded-xl border border-[#E2E8F0] bg-white hover:bg-[#F8FAFC] text-xs sm:text-sm font-semibold text-[#0f172a] shadow-2xs hover:shadow-xs transition-all cursor-pointer"
           >
             <svg className="w-4 h-4" viewBox="0 0 24 24">
@@ -192,7 +223,7 @@ export const AuthView: React.FC<AuthViewProps> = ({
           {/* Continue with Apple */}
           <button
             type="button"
-            onClick={() => onSuccess('overview')}
+            onClick={() => void handleOAuth('apple')}
             className="w-full flex items-center justify-center gap-3 py-3 px-4 rounded-xl border border-[#E2E8F0] bg-white hover:bg-[#F8FAFC] text-xs sm:text-sm font-semibold text-[#0f172a] shadow-2xs hover:shadow-xs transition-all cursor-pointer"
           >
             <svg className="w-4 h-4 fill-black" viewBox="0 0 24 24">
@@ -252,7 +283,7 @@ export const AuthView: React.FC<AuthViewProps> = ({
               {mode === 'login' && (
                 <button
                   type="button"
-                  onClick={() => alert('Password reset link sent to ' + email)}
+                  onClick={() => void handlePasswordReset()}
                   className="text-[11px] font-medium text-[#00685f] hover:underline"
                 >
                   Forgot password?
@@ -334,12 +365,19 @@ export const AuthView: React.FC<AuthViewProps> = ({
             </div>
           )}
 
+          {(authError || authNotice) && (
+            <p role="status" className={`text-xs rounded-lg px-3 py-2 ${authError ? 'bg-rose-50 text-rose-700' : 'bg-emerald-50 text-emerald-700'}`}>
+              {authError ?? authNotice}
+            </p>
+          )}
+
           {/* Submit Action */}
           <button
             type="submit"
+            disabled={isSubmitting}
             className="w-full py-3.5 px-5 rounded-xl bg-[#00685f] hover:bg-[#00524b] text-white text-sm font-semibold shadow-md shadow-[#00685f]/30 transition-all flex items-center justify-center gap-2 cursor-pointer hover:shadow-lg hover:-translate-y-0.5 active:translate-y-0"
           >
-            <span>{mode === 'signup' ? 'Create Free Family Account' : 'Sign In to Family Circle'}</span>
+            <span>{isSubmitting ? 'Please wait…' : mode === 'signup' ? 'Create Free Family Account' : 'Sign In to Family Circle'}</span>
             <ArrowRight className="w-4 h-4" />
           </button>
         </form>

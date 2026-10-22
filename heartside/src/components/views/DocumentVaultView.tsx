@@ -63,13 +63,13 @@ export const DocumentVaultView: React.FC<DocumentVaultViewProps> = ({
         <div>
           <div className="inline-flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wider text-[#00685f]">
             <span className="w-2 h-2 rounded-full bg-[#15803D]" />
-            <span>AES-256 Encrypted • Zero Ad Monetization • HIPAA-Conscious Safeguards</span>
+            <span>Preview only • Fictional documents • Not for real records</span>
           </div>
           <h1 className="text-2xl md:text-3xl font-bold font-display text-[#081d2c] tracking-tight mt-1">
             Document Vault & Health Records
           </h1>
           <p className="text-xs md:text-sm text-[#64748B] mt-1 max-w-2xl leading-relaxed">
-            Centralized, permission-shielded repository for Eleanor Vance. Safeguard vital directives, diagnostic scans, card scans, and verified prescriptions with complete tamper audit logging.
+            Preview of a future document-vault experience. Uploads, sharing, exports, and audit verification are not enabled for real records.
           </p>
         </div>
 
@@ -86,11 +86,11 @@ export const DocumentVaultView: React.FC<DocumentVaultViewProps> = ({
           </div>
 
           <button
-            onClick={() => alert('Exporting all 18 documents as encrypted ZIP')}
+            onClick={() => alert('Document export is not available in this preview.')}
             className="inline-flex items-center gap-1.5 px-3 py-2 text-xs font-semibold text-[#081d2c] bg-white border border-[#CBD5E1] rounded-lg hover:bg-slate-50 transition-colors shadow-2xs"
           >
             <Download className="w-3.5 h-3.5 text-[#64748B]" />
-            <span>Export All (ZIP)</span>
+            <span>Export unavailable</span>
           </button>
 
           <button
@@ -98,7 +98,7 @@ export const DocumentVaultView: React.FC<DocumentVaultViewProps> = ({
             className="inline-flex items-center gap-2 px-4 py-2 text-xs font-semibold text-white bg-[#00685f] hover:bg-[#005049] rounded-lg shadow-sm transition-colors"
           >
             <Upload className="w-4 h-4" />
-            <span>Upload Document</span>
+            <span>Preview upload</span>
           </button>
         </div>
       </div>
@@ -114,7 +114,7 @@ export const DocumentVaultView: React.FC<DocumentVaultViewProps> = ({
               Circle Access Protocol Active
             </div>
             <p className="text-xs text-[#475569] mt-0.5 leading-relaxed">
-              Documents in this vault are strictly restricted to authorized members of <strong>Eleanor Vance's Circle</strong>. Every access, preview, and download is timestamped in the immutable Circle Security Audit Trail.
+              This preview displays fictional records. It does not provide a verified access-control or audit system for real documents.
             </p>
           </div>
         </div>
@@ -127,7 +127,7 @@ export const DocumentVaultView: React.FC<DocumentVaultViewProps> = ({
             Audit Trail (24 Events)
           </button>
           <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-[#DCFCE7] text-[#15803D] text-xs font-semibold">
-            <span className="w-1.5 h-1.5 rounded-full bg-[#15803D]" /> 0 Leaks Detected
+            <span className="w-1.5 h-1.5 rounded-full bg-[#15803D]" /> Preview data only
           </span>
         </div>
       </div>
@@ -351,7 +351,7 @@ export const DocumentVaultView: React.FC<DocumentVaultViewProps> = ({
               <span>Need to request records?</span>
             </h3>
             <p className="text-xs text-[#64748B] leading-relaxed">
-              Generate an automated, HIPAA-compliant Medical Records Request authorization packet directly sent to clinics or hospital records departments.
+              Medical-record request delivery is not available in this preview.
             </p>
             <button
               onClick={onRequestRecordsClick}

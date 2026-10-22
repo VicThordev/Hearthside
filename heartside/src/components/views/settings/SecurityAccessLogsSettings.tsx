@@ -112,14 +112,14 @@ export const SecurityAccessLogsSettings: React.FC = () => {
             <div>
               <div className="flex items-center gap-2">
                 <h2 className="text-base font-bold font-display text-[#081d2c]">
-                  HIPAA-Conscious Architecture & Encryption
+                  Security controls status
                 </h2>
                 <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800">
                   Grade A+ Security
                 </span>
               </div>
               <p className="text-xs text-[#64748B] mt-0.5">
-                Eleanor Vance's care records are shielded by AES-256 at rest, TLS 1.3 in transit, and role-based ACLs.
+                This preview does not provide verified encryption, role enforcement, or audit controls for real care records.
               </p>
             </div>
           </div>
@@ -136,7 +136,7 @@ export const SecurityAccessLogsSettings: React.FC = () => {
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-2 text-xs">
           <div className="p-3 rounded-xl bg-[#F8FAFC] border border-[#E2E8F0]">
             <span className="text-[10px] text-[#64748B] block font-semibold">Encryption Standard</span>
-            <span className="font-bold text-[#081d2c] mt-0.5 block">AES-256-GCM</span>
+            <span className="font-bold text-[#081d2c] mt-0.5 block">Not configured in preview</span>
           </div>
           <div className="p-3 rounded-xl bg-[#F8FAFC] border border-[#E2E8F0]">
             <span className="text-[10px] text-[#64748B] block font-semibold">Zero Ad Monetization</span>

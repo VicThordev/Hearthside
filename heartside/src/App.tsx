@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Sidebar } from './components/Sidebar';
 import { TopHeader } from './components/TopHeader';
 import { CalendarView } from './components/views/CalendarView';
@@ -20,6 +20,11 @@ import { AuditLogModal } from './components/modals/AuditLogModal';
 import { PermissionMatrixModal } from './components/modals/PermissionMatrixModal';
 import { EscalationTestModal } from './components/modals/EscalationTestModal';
 import { DocumentPreviewModal } from './components/modals/DocumentPreviewModal';
+import { useAuth } from './auth/AuthProvider';
+import { apiFetch } from './lib/api';
+import { CircleSetupView } from './components/views/CircleSetupView';
+import { DemoBanner } from './components/DemoBanner';
+import { isDemoMode } from './lib/runtime';
 
 // Initial Data
 import {
@@ -44,17 +49,18 @@ import {
 } from './types';
 
 export default function App() {
+  const { user, loading, signOut } = useAuth();
   const [currentView, setCurrentView] = useState<ViewMode>('landing');
   const [authMode, setAuthMode] = useState<'signup' | 'login'>('signup');
   
   // App state
-  const [events, setEvents] = useState<ScheduleEvent[]>(INITIAL_SCHEDULE_EVENTS);
-  const [caregivers, setCaregivers] = useState<Caregiver[]>(INITIAL_CAREGIVERS);
-  const [pendingInvites, setPendingInvites] = useState<PendingInvite[]>(INITIAL_PENDING_INVITES);
-  const [notes, setNotes] = useState<CareNote[]>(INITIAL_CARE_NOTES);
-  const [documents, setDocuments] = useState<VaultDocument[]>(INITIAL_VAULT_DOCUMENTS);
-  const [invoices] = useState<Invoice[]>(INITIAL_INVOICES);
-  const [notifications, setNotifications] = useState<NotificationItem[]>(INITIAL_NOTIFICATIONS);
+  const [events, setEvents] = useState<ScheduleEvent[]>(isDemoMode ? INITIAL_SCHEDULE_EVENTS : []);
+  const [caregivers, setCaregivers] = useState<Caregiver[]>(isDemoMode ? INITIAL_CAREGIVERS : []);
+  const [pendingInvites, setPendingInvites] = useState<PendingInvite[]>(isDemoMode ? INITIAL_PENDING_INVITES : []);
+  const [notes, setNotes] = useState<CareNote[]>(isDemoMode ? INITIAL_CARE_NOTES : []);
+  const [documents, setDocuments] = useState<VaultDocument[]>(isDemoMode ? INITIAL_VAULT_DOCUMENTS : []);
+  const [invoices] = useState<Invoice[]>(isDemoMode ? INITIAL_INVOICES : []);
+  const [notifications, setNotifications] = useState<NotificationItem[]>(isDemoMode ? INITIAL_NOTIFICATIONS : []);
 
   // Modal states
   const [newModalType, setNewModalType] = useState<'event' | 'note' | 'doc' | 'invite' | null>(null);
@@ -64,9 +70,25 @@ export default function App() {
   const [showEscalationTest, setShowEscalationTest] = useState(false);
   const [previewDoc, setPreviewDoc] = useState<VaultDocument | null>(null);
   const [showSwitchCircleNotice, setShowSwitchCircleNotice] = useState(false);
+  const [circleState, setCircleState] = useState<'loading' | 'ready' | 'needs-setup' | 'error'>('loading');
+
+  useEffect(() => {
+    if (!user) { setCircleState('loading'); return; }
+    let cancelled = false;
+    void apiFetch<{ data: Array<{ care_circles: { id: string } | null }> }>('/api/v1/circles')
+      .then(({ data }) => {
+        if (cancelled) return;
+        const circleId = data[0]?.care_circles?.id;
+        if (circleId) { localStorage.setItem('hearthside.activeCircleId', circleId); setCircleState('ready'); }
+        else setCircleState('needs-setup');
+      })
+      .catch(() => { if (!cancelled) setCircleState('error'); });
+    return () => { cancelled = true; };
+  }, [user]);
 
   // Handlers
   const handleAddEvent = (newEvent: Partial<ScheduleEvent>) => {
+    if (!isDemoMode) { alert('Creating calendar events is not enabled until this screen is connected to the API.'); return; }
     const event: ScheduleEvent = {
       id: `evt-${Date.now()}`,
       title: newEvent.title || 'Untitled Care Event',
@@ -83,6 +105,7 @@ export default function App() {
   };
 
   const handleAddNote = (newNote: Partial<CareNote>) => {
+    if (!isDemoMode) { alert('Posting care notes is not enabled until this screen is connected to the API.'); return; }
     const note: CareNote = {
       id: `note-${Date.now()}`,
       authorId: 'sarah-vance',
@@ -102,6 +125,7 @@ export default function App() {
   };
 
   const handleAddDoc = (filename: string, category: string) => {
+    if (!isDemoMode) { alert('Document uploads are not enabled in this release.'); return; }
     const newDoc: VaultDocument = {
       id: `doc-${Date.now()}`,
       title: filename,
@@ -116,6 +140,7 @@ export default function App() {
   };
 
   const handleInvite = (name: string, email: string, role: string) => {
+    if (!isDemoMode) { alert('Invitations are not enabled until role management is implemented.'); return; }
     const invite: PendingInvite = {
       id: `invite-${Date.now()}`,
       name,
@@ -138,8 +163,9 @@ export default function App() {
   if (currentView === 'landing') {
     return (
       <div className="relative min-h-screen w-full bg-[#FCFDFE]">
+        {isDemoMode && <DemoBanner />}
         <LandingPageView
-          onEnterApp={(view) => setCurrentView(view || 'overview')}
+          onEnterApp={(view) => setCurrentView(user ? (view || 'overview') : 'auth')}
           onOpenAuth={(mode) => {
             setAuthMode(mode || 'signup');
             setCurrentView('auth');
@@ -149,11 +175,11 @@ export default function App() {
         {/* Floating Quick Action to jump directly to Active Care Circle */}
         <div className="fixed bottom-6 right-6 z-50">
           <button
-            onClick={() => setCurrentView('overview')}
+            onClick={() => setCurrentView(user ? 'overview' : 'auth')}
             className="flex items-center gap-2.5 px-5 py-3 rounded-full bg-[#081d2c] hover:bg-[#00685f] text-white text-xs font-bold shadow-2xl border border-white/20 transition-all transform hover:scale-105 cursor-pointer"
           >
             <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse" />
-            <span>Launch Eleanor Vance Care Portal →</span>
+            <span>{isDemoMode ? 'Open Fictional Preview →' : 'Open Care Portal →'}</span>
           </button>
         </div>
       </div>
@@ -163,12 +189,28 @@ export default function App() {
   // Dedicated Sign Up / Log In View
   if (currentView === 'auth') {
     return (
-      <AuthView
-        initialMode={authMode}
-        onSuccess={(view) => setCurrentView(view || 'overview')}
-        onBackToLanding={() => setCurrentView('landing')}
-      />
+      <>{isDemoMode && <DemoBanner />}<AuthView initialMode={authMode} onSuccess={(view) => setCurrentView(view || 'overview')} onBackToLanding={() => setCurrentView('landing')} /></>
     );
+  }
+
+  if (loading) {
+    return <div className="min-h-screen grid place-items-center bg-[#F6F9FF] text-sm text-[#475569]">Loading secure session…</div>;
+  }
+
+  if (!user) {
+    return <><>{isDemoMode && <DemoBanner />}</><AuthView initialMode="login" onSuccess={() => setCurrentView('overview')} onBackToLanding={() => setCurrentView('landing')} /></>;
+  }
+
+  if (circleState === 'loading') {
+    return <div className="min-h-screen grid place-items-center bg-[#F6F9FF] text-sm text-[#475569]">Loading your Care Circle…</div>;
+  }
+
+  if (circleState === 'needs-setup') {
+    return <CircleSetupView onComplete={() => setCircleState('ready')} />;
+  }
+
+  if (circleState === 'error') {
+    return <div className="min-h-screen grid place-items-center bg-[#F6F9FF] p-6 text-center"><div><p className="font-semibold text-[#081d2c]">We could not load your Care Circle.</p><p className="mt-2 text-sm text-[#64748B]">Confirm that the API server is running and your Supabase environment variables are configured.</p></div></div>;
   }
 
   return (
@@ -179,10 +221,12 @@ export default function App() {
         onViewChange={(view) => setCurrentView(view)}
         onUpgradeClick={() => setCurrentView('settings')}
         onSwitchCircle={() => setShowSwitchCircleNotice(true)}
+        onSignOut={() => { void signOut(); setCurrentView('landing'); }}
       />
 
       {/* Main Content Area */}
       <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
+        {isDemoMode && <DemoBanner />}
         {/* Top Header */}
         <TopHeader
           currentView={currentView}
@@ -235,7 +279,7 @@ export default function App() {
           {currentView === 'vault' && (
             <DocumentVaultView
               documents={documents}
-              onUploadClick={() => setNewModalType('doc')}
+              onUploadClick={() => alert(isDemoMode ? 'Document upload is simulated in this preview.' : 'Document upload is not enabled in this release.')}
               onPreviewDocument={(doc) => setPreviewDoc(doc)}
               onPrintEmergencyCard={() => setShowEmergencyCard(true)}
               onRequestRecordsClick={() => alert('Generating medical records authorization request for Dr. Chen Clinic')}
