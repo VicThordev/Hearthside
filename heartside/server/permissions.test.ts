@@ -9,7 +9,7 @@ test('restricted helpers can read events but cannot access notes or documents', 
   assert.equal(roleCan('restricted_helper', 'document:read'), false);
 });
 
-test('collaborators cannot upload or access document files', () => {
+test('collaborators can read documents but cannot upload them', () => {
   assert.equal(roleCan('collaborator', 'note:write'), true);
   assert.equal(roleCan('collaborator', 'document:read'), true);
   assert.equal(roleCan('collaborator', 'document:write'), false);
@@ -17,4 +17,5 @@ test('collaborators cannot upload or access document files', () => {
 
 test('unknown roles have no permissions', () => {
   assert.equal(roleCan('untrusted', 'event:read'), false);
+  assert.equal(roleCan('__proto__', 'event:read'), false);
 });

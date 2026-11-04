@@ -74,7 +74,7 @@ export const NewItemModal: React.FC<NewItemModalProps> = ({
       authorName: 'Sarah Vance',
       authorInitials: 'SV',
       authorRole: 'Primary Care Organizer',
-      authorAvatar: '/src/assets/images/sarah_vance_avatar_1792204247520.jpg',
+      authorAvatar: '/images/sarah_vance_avatar_1792204247520.jpg',
       timestamp: 'Just now',
       title: noteTitle.trim() || 'Care Circle Note',
       content: noteContent.trim(),

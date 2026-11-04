@@ -103,7 +103,7 @@ export const CareNotesView: React.FC<CareNotesViewProps> = ({
       authorName: 'Sarah Vance',
       authorInitials: 'SV',
       authorRole: 'Primary Care Organizer',
-      authorAvatar: '/src/assets/images/sarah_vance_avatar_1792204247520.jpg',
+      authorAvatar: '/images/sarah_vance_avatar_1792204247520.jpg',
       timestamp: 'Just now',
       title: composerTitle || 'Care Circle Update',
       content: composerText,
@@ -116,6 +116,9 @@ export const CareNotesView: React.FC<CareNotesViewProps> = ({
     setComposerTitle('');
     setComposerOpen(false);
   };
+
+  // The sample feed below is static markup; notes posted in this session render above it.
+  const postedNotes = notes.filter((note) => /^note-\d+$/.test(note.id) && (activeFilter === 'all' || activeFilter === note.category));
 
   return (
     <div className="flex-1 overflow-y-auto p-4 md:p-6 lg:p-8 space-y-6 bg-[#F6F9FF]">
@@ -190,7 +193,7 @@ export const CareNotesView: React.FC<CareNotesViewProps> = ({
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2.5">
                   <img
-                    src="/src/assets/images/sarah_vance_avatar_1792204247520.jpg"
+                    src="/images/sarah_vance_avatar_1792204247520.jpg"
                     alt="Sarah Vance"
                     className="w-8 h-8 rounded-full object-cover"
                   />
@@ -267,6 +270,17 @@ export const CareNotesView: React.FC<CareNotesViewProps> = ({
               </div>
             </div>
           )}
+
+          {postedNotes.map((note) => (
+            <article key={note.id} className="p-6 rounded-2xl bg-white border border-[#CBD5E1] shadow-sm space-y-2">
+              <div className="flex items-center justify-between gap-2 text-xs text-[#64748B]">
+                <span className="font-semibold text-[#081d2c]">{note.authorName} • {note.authorRole}</span>
+                <span>{note.timestamp}</span>
+              </div>
+              <h2 className="text-lg font-bold font-display text-[#081d2c]">{note.title}</h2>
+              {note.content && <p className="text-sm text-[#475569] whitespace-pre-wrap">{note.content}</p>}
+            </article>
+          ))}
 
           {/* ======================================================== */}
           {/* SEGMENT 1: ALL OR IMPORTANT ANNOUNCEMENTS (Critical Pinned) */}
@@ -404,7 +418,7 @@ export const CareNotesView: React.FC<CareNotesViewProps> = ({
                 <div className="flex items-start justify-between">
                   <div className="flex items-center gap-3">
                     <img
-                      src="/src/assets/images/nurse_beth_avatar_1792204257850.jpg"
+                      src="/images/nurse_beth_avatar_1792204268095.jpg"
                       alt="Nurse Beth RN"
                       className="w-10 h-10 rounded-full object-cover"
                     />
@@ -435,7 +449,7 @@ export const CareNotesView: React.FC<CareNotesViewProps> = ({
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="relative rounded-xl overflow-hidden border border-[#CBD5E1] bg-slate-100 h-48">
                     <img
-                      src="/src/assets/images/care_sunroom_activity_1792204248670.jpg"
+                      src="/images/care_sunroom_activity_1792204248670.jpg"
                       alt="Garden sunroom stretches"
                       className="w-full h-full object-cover"
                     />
@@ -614,7 +628,7 @@ export const CareNotesView: React.FC<CareNotesViewProps> = ({
                 <div className="flex items-start justify-between">
                   <div className="flex items-center gap-3">
                     <img
-                      src="/src/assets/images/marcus_vance_avatar_1792204257224.jpg"
+                      src="/images/marcus_vance_avatar_1792204268376.jpg"
                       alt="Marcus Vance"
                       className="w-10 h-10 rounded-full object-cover"
                     />
@@ -715,7 +729,7 @@ export const CareNotesView: React.FC<CareNotesViewProps> = ({
                 <div className="flex items-start justify-between">
                   <div className="flex items-center gap-3">
                     <img
-                      src="/src/assets/images/david_vance_avatar_1792204257121.jpg"
+                      src="/images/david_vance_avatar_1792204267362.jpg"
                       alt="David Vance"
                       className="w-10 h-10 rounded-full object-cover"
                     />

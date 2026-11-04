@@ -89,7 +89,7 @@ export const CircleProfileSettings: React.FC = () => {
           <div className="flex items-center gap-4">
             <div className="relative">
               <img
-                src="/src/assets/images/eleanor_vance_portrait_1792204247616.jpg"
+                src="/images/eleanor_vance_portrait_1792204247616.jpg"
                 alt="Eleanor Vance"
                 className="w-16 h-16 rounded-2xl object-cover ring-4 ring-[#E1F0FF] shadow-xs"
               />

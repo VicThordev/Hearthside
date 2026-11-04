@@ -58,7 +58,7 @@ const INITIAL_TASKS: TaskItem[] = [
     assignee: {
       name: 'Sarah Vance',
       initials: 'SV',
-      avatar: '/src/assets/images/sarah_vance_avatar_1792204247520.jpg',
+      avatar: '/images/sarah_vance_avatar_1792204247520.jpg',
       role: 'Primary Driver'
     },
     dueDate: 'Today, Oct 24',
@@ -81,7 +81,7 @@ const INITIAL_TASKS: TaskItem[] = [
     assignee: {
       name: 'David Vance',
       initials: 'DV',
-      avatar: '/src/assets/images/david_vance_avatar_1792204257121.jpg',
+      avatar: '/images/david_vance_avatar_1792204267362.jpg',
       role: 'Logistics Lead'
     },
     dueDate: 'Today, Oct 24',
@@ -103,7 +103,7 @@ const INITIAL_TASKS: TaskItem[] = [
     assignee: {
       name: 'Sarah Vance',
       initials: 'SV',
-      avatar: '/src/assets/images/sarah_vance_avatar_1792204247520.jpg',
+      avatar: '/images/sarah_vance_avatar_1792204247520.jpg',
       role: 'Evening Check'
     },
     dueDate: 'Today, Oct 24',
@@ -125,7 +125,7 @@ const INITIAL_TASKS: TaskItem[] = [
     assignee: {
       name: 'David Vance',
       initials: 'DV',
-      avatar: '/src/assets/images/david_vance_avatar_1792204257121.jpg',
+      avatar: '/images/david_vance_avatar_1792204267362.jpg',
       role: 'Logistics Lead'
     },
     dueDate: 'Yesterday',
@@ -146,7 +146,7 @@ const INITIAL_TASKS: TaskItem[] = [
     assignee: {
       name: 'David Vance',
       initials: 'DV',
-      avatar: '/src/assets/images/david_vance_avatar_1792204257121.jpg',
+      avatar: '/images/david_vance_avatar_1792204267362.jpg',
       role: 'Logistics Lead'
     },
     dueDate: 'Friday, Oct 25',
@@ -167,7 +167,7 @@ const INITIAL_TASKS: TaskItem[] = [
     assignee: {
       name: 'Marcus Vance',
       initials: 'MV',
-      avatar: '/src/assets/images/marcus_vance_avatar_1792204257224.jpg',
+      avatar: '/images/marcus_vance_avatar_1792204268376.jpg',
       role: 'Remote Contributor'
     },
     dueDate: 'Sunday, Oct 27',
@@ -184,7 +184,7 @@ const INITIAL_TASKS: TaskItem[] = [
     assignee: {
       name: 'Nurse Beth RN',
       initials: 'BN',
-      avatar: '/src/assets/images/nurse_beth_avatar_1792204257850.jpg',
+      avatar: '/images/nurse_beth_avatar_1792204268095.jpg',
       role: 'Cascade Visiting Nurse'
     },
     dueDate: 'Today, Oct 24',
@@ -272,22 +272,22 @@ export const TasksView: React.FC = () => {
     const assigneeMap: { [key: string]: { initials: string; avatar: string; role: string } } = {
       'Sarah Vance': {
         initials: 'SV',
-        avatar: '/src/assets/images/sarah_vance_avatar_1792204247520.jpg',
+        avatar: '/images/sarah_vance_avatar_1792204247520.jpg',
         role: 'Primary Care Organizer'
       },
       'David Vance': {
         initials: 'DV',
-        avatar: '/src/assets/images/david_vance_avatar_1792204257121.jpg',
+        avatar: '/images/david_vance_avatar_1792204267362.jpg',
         role: 'Logistics Lead'
       },
       'Marcus Vance': {
         initials: 'MV',
-        avatar: '/src/assets/images/marcus_vance_avatar_1792204257224.jpg',
+        avatar: '/images/marcus_vance_avatar_1792204268376.jpg',
         role: 'Remote Contributor'
       },
       'Nurse Beth RN': {
         initials: 'BN',
-        avatar: '/src/assets/images/nurse_beth_avatar_1792204257850.jpg',
+        avatar: '/images/nurse_beth_avatar_1792204268095.jpg',
         role: 'Cascade Visiting Nurse'
       }
     };

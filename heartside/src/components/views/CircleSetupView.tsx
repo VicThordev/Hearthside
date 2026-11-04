@@ -1,6 +1,6 @@
 import { useState, type FormEvent } from 'react';
 import { Heart, LoaderCircle } from 'lucide-react';
-import { apiFetch } from '../../lib/api';
+import { apiFetch, setActiveCircleId } from '../../lib/api';
 
 type CircleSetupViewProps = { onComplete: (circleId: string) => void };
 
@@ -16,7 +16,7 @@ export function CircleSetupView({ onComplete }: CircleSetupViewProps) {
       const response = await apiFetch<{ data: { id: string } }>('/api/v1/circles', {
         method: 'POST', body: JSON.stringify({ name: circleName, recipientName, timezone: Intl.DateTimeFormat().resolvedOptions().timeZone }),
       });
-      localStorage.setItem('hearthside.activeCircleId', response.data.id);
+      setActiveCircleId(response.data.id);
       onComplete(response.data.id);
     } catch (reason) { setError(reason instanceof Error ? reason.message : 'Unable to create your care circle.'); }
     finally { setSaving(false); }

@@ -56,7 +56,7 @@ export const OverviewView: React.FC<OverviewViewProps> = ({
             <div className="text-xl font-bold font-display">64°F • Mild</div>
           </div>
           <img
-            src="/src/assets/images/eleanor_vance_portrait_1792204247616.jpg"
+            src="/images/eleanor_vance_portrait_1792204247616.jpg"
             alt="Eleanor Vance"
             className="w-16 h-16 rounded-full object-cover border-4 border-white/30 shadow-md"
             referrerPolicy="no-referrer"

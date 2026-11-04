@@ -144,7 +144,7 @@ export const AllDocumentsSegment: React.FC<AllDocumentsSegmentProps> = ({
       categoryLabel: 'Home Safety & Mobility',
       isVerified: true,
       verifiedNotice: 'Inspected by Portland Senior Safety Solutions • Completed Aug 29, 2024',
-      previewThumbnail: '/src/assets/images/home_safety_grab_bar_1792204248572.jpg',
+      previewThumbnail: '/images/home_safety_grab_bar_1792204248572.jpg',
       highlights: 'Includes warranty certificates, stud locator diagrams for master bathroom walk-in shower, ramp incline schematics, and 24-hr contractor hotline for maintenance.',
       nextInspection: 'Next inspection recommendation: August 2025',
       downloadCount: 6

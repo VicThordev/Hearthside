@@ -54,7 +54,7 @@ export const TopHeader: React.FC<TopHeaderProps> = ({
   };
 
   return (
-    <header className="h-16 bg-white border-b border-[#E2E8F0] px-6 flex items-center justify-between gap-4 z-10 shrink-0">
+    <header className="h-16 bg-white border-b border-[#E2E8F0] px-6 flex items-center justify-between gap-4 relative z-30 shrink-0">
       {/* Left: Breadcrumbs & Switch Circle */}
       <div className="flex items-center gap-2 text-xs md:text-sm text-[#64748B] min-w-0">
         <span className="hover:text-[#081d2c] transition-colors font-medium cursor-pointer" onClick={() => onNavigate?.('overview')}>
@@ -244,7 +244,7 @@ export const TopHeader: React.FC<TopHeaderProps> = ({
           className="relative rounded-full ring-2 ring-[#00685f]/30 hover:ring-[#00685f] transition-all p-0.5"
         >
           <img
-            src="/src/assets/images/sarah_vance_avatar_1792204247520.jpg"
+            src="/images/sarah_vance_avatar_1792204247520.jpg"
             alt="Sarah Vance"
             className="w-8 h-8 rounded-full object-cover"
             referrerPolicy="no-referrer"

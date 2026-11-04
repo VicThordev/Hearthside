@@ -3,8 +3,9 @@ import { Sidebar } from './components/Sidebar';
 import { TopHeader } from './components/TopHeader';
 
 import { useAuth } from './auth/AuthProvider';
-import { apiFetch } from './lib/api';
+import { apiFetch, getActiveCircleId, setActiveCircleId } from './lib/api';
 import { DemoBanner } from './components/DemoBanner';
+import { ErrorBoundary } from './components/ErrorBoundary';
 import { isDemoMode } from './lib/runtime';
 
 const CalendarView = lazy(() => import('./components/views/CalendarView').then(({ CalendarView }) => ({ default: CalendarView })));
@@ -63,6 +64,7 @@ export default function App() {
   const [showSwitchCircleNotice, setShowSwitchCircleNotice] = useState(false);
   const [circleState, setCircleState] = useState<'loading' | 'ready' | 'needs-setup' | 'error'>('loading');
   const [circles, setCircles] = useState<CircleSummary[]>([]);
+  const [activeCircleId, setActiveCircle] = useState<string | null>(null);
   const [circleReload, setCircleReload] = useState(0);
 
   useEffect(() => {
@@ -79,6 +81,8 @@ export default function App() {
   }, []);
 
   useEffect(() => {
+    // Demo mode shows fictional data only, so it never needs the API or a Care Circle.
+    if (isDemoMode) return;
     if (!user) { setCircleState('loading'); return; }
     let cancelled = false;
     void apiFetch<{ data: Array<{ care_circles: CircleSummary | null }> }>('/api/v1/circles')
@@ -86,16 +90,21 @@ export default function App() {
         if (cancelled) return;
         const availableCircles = data.flatMap(({ care_circles }) => care_circles ? [care_circles] : []);
         setCircles(availableCircles);
-        const storedCircleId = localStorage.getItem('hearthside.activeCircleId');
+        const storedCircleId = getActiveCircleId();
         const circleId = availableCircles.some(({ id }) => id === storedCircleId) ? storedCircleId : availableCircles[0]?.id;
-        if (circleId) { localStorage.setItem('hearthside.activeCircleId', circleId); setCircleState('ready'); }
-        else setCircleState('needs-setup');
+        if (circleId) { selectCircle(circleId); setCircleState('ready'); }
+        else { selectCircle(null); setCircleState('needs-setup'); }
       })
       .catch(() => { if (!cancelled) setCircleState('error'); });
     return () => { cancelled = true; };
   }, [user, circleReload]);
 
   // Handlers
+  function selectCircle(circleId: string | null) {
+    setActiveCircleId(circleId);
+    setActiveCircle(circleId);
+  }
+
   const handleAddEvent = (newEvent: Partial<ScheduleEvent>) => {
     if (!isDemoMode) { alert('Creating calendar events is not enabled until this screen is connected to the API.'); return; }
     const event: ScheduleEvent = {
@@ -121,7 +130,7 @@ export default function App() {
       authorName: 'Sarah Vance',
       authorInitials: 'SV',
       authorRole: 'Primary Care Organizer',
-      authorAvatar: '/src/assets/images/sarah_vance_avatar_1792204247520.jpg',
+      authorAvatar: '/images/sarah_vance_avatar_1792204247520.jpg',
       timestamp: 'Just now',
       title: newNote.title || 'Care Update',
       content: newNote.content || '',
@@ -179,7 +188,7 @@ export default function App() {
       <div className="relative min-h-screen w-full bg-[#FCFDFE]">
         {isDemoMode && <DemoBanner />}
         <Suspense fallback={<div className="min-h-screen grid place-items-center">Loading preview…</div>}><LandingPageView
-          onEnterApp={(view) => setCurrentView(user ? (view || 'overview') : 'auth')}
+          onEnterApp={(view) => setCurrentView(user || isDemoMode ? (view || 'overview') : 'auth')}
           onOpenAuth={(mode) => {
             setAuthMode(mode || 'signup');
             setCurrentView('auth');
@@ -189,7 +198,7 @@ export default function App() {
         {/* Floating Quick Action to jump directly to Active Care Circle */}
         <div className="fixed bottom-6 right-6 z-50">
           <button
-            onClick={() => setCurrentView(user ? 'overview' : 'auth')}
+            onClick={() => setCurrentView(user || isDemoMode ? 'overview' : 'auth')}
             className="flex items-center gap-2.5 px-5 py-3 rounded-full bg-[#081d2c] hover:bg-[#00685f] text-white text-xs font-bold shadow-2xl border border-white/20 transition-all transform hover:scale-105 cursor-pointer"
           >
             <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse" />
@@ -207,29 +216,30 @@ export default function App() {
     );
   }
 
-  if (loading) {
+  if (loading && !isDemoMode) {
     return <div className="min-h-screen grid place-items-center bg-[#F6F9FF] text-sm text-[#475569]">Loading secure session…</div>;
   }
 
-  if (!user) {
+  if (!user && !isDemoMode) {
     return <><>{isDemoMode && <DemoBanner />}</><Suspense fallback={<div className="min-h-screen grid place-items-center">Loading sign-in…</div>}><AuthView initialMode="login" onSuccess={() => setCurrentView('overview')} onBackToLanding={() => setCurrentView('landing')} /></Suspense></>;
   }
 
-  if (circleState === 'loading') {
+  if (circleState === 'loading' && !isDemoMode) {
     return <div className="min-h-screen grid place-items-center bg-[#F6F9FF] text-sm text-[#475569]">Loading your Care Circle…</div>;
   }
 
-  if (circleState === 'needs-setup') {
+  if (circleState === 'needs-setup' && !isDemoMode) {
     return <Suspense fallback={<div className="min-h-screen grid place-items-center">Loading setup…</div>}><CircleSetupView onComplete={() => { setCircleState('loading'); setCircleReload((value) => value + 1); }} /></Suspense>;
   }
 
-  if (circleState === 'error') {
+  if (circleState === 'error' && !isDemoMode) {
     return <div className="min-h-screen grid place-items-center bg-[#F6F9FF] p-6 text-center"><div><p className="font-semibold text-[#081d2c]">We could not load your Care Circle.</p><p className="mt-2 text-sm text-[#64748B]">Confirm that the API server is running and your Supabase environment variables are configured.</p><button onClick={() => { setCircleState('loading'); setCircleReload((value) => value + 1); }} className="mt-4 rounded-lg bg-[#00685f] px-4 py-2 text-sm font-semibold text-white">Try again</button></div></div>;
   }
 
   return (
     <Suspense fallback={<div className="min-h-screen grid place-items-center bg-[#F6F9FF] text-sm text-[#475569]">Loading view…</div>}>
-    <div className="flex h-screen w-screen overflow-hidden bg-[#F6F9FF] text-[#081d2c] font-sans">
+    {/* Keyed by circle so per-circle view state resets when the user switches circles. */}
+    <div key={activeCircleId ?? 'none'} className="flex h-screen w-screen overflow-hidden bg-[#F6F9FF] text-[#081d2c] font-sans">
       <a className="skip-link" href="#main-content">Skip to main content</a>
       {/* Left Sidebar */}
       <Sidebar
@@ -237,7 +247,7 @@ export default function App() {
         onViewChange={(view) => setCurrentView(view)}
         onUpgradeClick={() => setCurrentView('settings')}
         onSwitchCircle={() => setShowSwitchCircleNotice(true)}
-        onSignOut={() => { void signOut(); setCurrentView('landing'); }}
+        onSignOut={() => { selectCircle(null); if (user) void signOut(); setCurrentView('landing'); }}
       />
 
       {/* Main Content Area */}
@@ -266,6 +276,7 @@ export default function App() {
 
         {/* View Switcher Container */}
         <main id="main-content" className="flex-1 flex overflow-hidden" tabIndex={-1}>
+          <ErrorBoundary key={currentView}>
           {currentView === 'calendar' && (
             <CalendarView
               events={events}
@@ -323,6 +334,7 @@ export default function App() {
           {currentView === 'directory' && <ServiceDirectoryView />}
 
           {currentView === 'reports' && <ReportsView />}
+          </ErrorBoundary>
         </main>
       </div>
 
@@ -371,9 +383,10 @@ export default function App() {
               Choose a Care Circle. Access is checked by the server for every API request.
             </p>
             <div className="space-y-2">
+              {isDemoMode && <p className="p-3 rounded-xl bg-[#F6F9FF] text-xs text-[#475569]">The fictional preview has one sample Care Circle, so there is nothing to switch to.</p>}
               {circles.map((circle) => {
-                const selected = localStorage.getItem('hearthside.activeCircleId') === circle.id;
-                return <button key={circle.id} onClick={() => { localStorage.setItem('hearthside.activeCircleId', circle.id); setShowSwitchCircleNotice(false); }} className={`w-full p-3 rounded-xl border text-left text-xs font-semibold flex items-center justify-between ${selected ? 'bg-[#E1F0FF] border-[#00685f] text-[#00685f]' : 'bg-white border-[#CBD5E1] text-[#081d2c]'}`}>
+                const selected = activeCircleId === circle.id;
+                return <button key={circle.id} onClick={() => { selectCircle(circle.id); setShowSwitchCircleNotice(false); }} className={`w-full p-3 rounded-xl border text-left text-xs font-semibold flex items-center justify-between ${selected ? 'bg-[#E1F0FF] border-[#00685f] text-[#00685f]' : 'bg-white border-[#CBD5E1] text-[#081d2c]'}`}>
                   <span>{circle.name}</span><span>{selected ? 'Selected' : 'Select'}</span>
                 </button>;
               })}
@@ -383,7 +396,7 @@ export default function App() {
                 onClick={() => setShowSwitchCircleNotice(false)}
                 className="px-4 py-2 text-xs font-semibold text-white bg-[#00685f] hover:bg-[#005049] rounded-lg"
               >
-                Continue with Eleanor's Circle
+                Close
               </button>
             </div>
           </div>

@@ -215,7 +215,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
             }`}
           >
             <img
-              src="/src/assets/images/sarah_vance_avatar_1792204247520.jpg"
+              src="/images/sarah_vance_avatar_1792204247520.jpg"
               alt="Sarah Vance"
               className="w-9 h-9 rounded-full object-cover border-2 border-[#00685f]/30 shrink-0"
               referrerPolicy="no-referrer"

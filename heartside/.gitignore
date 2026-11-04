@@ -6,3 +6,9 @@ coverage/
 *.log
 .env*
 !.env.example
+
+# AI Studio session artifacts (screenshots); kept locally, not versioned.
+.aistudio/
+
+# Supabase CLI link state
+supabase/.temp/

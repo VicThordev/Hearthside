@@ -532,7 +532,7 @@ export const CareTeamView: React.FC<CareTeamViewProps> = ({
           {/* Eleanor Vance Protected Card */}
           <div className="p-4 rounded-2xl bg-[#E1F0FF]/60 border border-[#CBD5E1] flex items-center gap-3">
             <img
-              src="/src/assets/images/eleanor_vance_portrait_1792204247616.jpg"
+              src="/images/eleanor_vance_portrait_1792204247616.jpg"
               alt="Eleanor Vance"
               className="w-12 h-12 rounded-full object-cover border-2 border-white shadow-2xs shrink-0"
               referrerPolicy="no-referrer"

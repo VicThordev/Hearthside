@@ -41,7 +41,7 @@ export const EmergencyCardModal: React.FC<EmergencyCardModalProps> = ({ onClose 
             <div className="flex items-center justify-between border-b border-[#CBD5E1] pb-3">
               <div className="flex items-center gap-3">
                 <img
-                  src="/src/assets/images/eleanor_vance_portrait_1792204247616.jpg"
+                  src="/images/eleanor_vance_portrait_1792204247616.jpg"
                   alt="Eleanor Vance"
                   className="w-12 h-12 rounded-full object-cover border-2 border-white shadow-2xs"
                   referrerPolicy="no-referrer"

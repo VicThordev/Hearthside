@@ -15,17 +15,24 @@ npm run dev
 Production validation at the time of this assessment:
 
 ```bash
-npm run lint   # TypeScript check
-npm run build  # Vite production build
+npm run lint         # client TypeScript check (strict)
+npm run lint:server  # server TypeScript check (strict)
+npm test             # server unit tests
+npm run test:db      # migrations + policy tests; needs DATABASE_URL for an empty, disposable PostgreSQL
+npm run build        # Vite production build
 ```
 
-Both commands pass. The build output is static files in `heartside/dist/`.
+All commands pass and run in CI. The build output is static files in `heartside/dist/`; images are served from `heartside/public/images/`.
+
+### Demo mode and live mode
+
+`VITE_RELEASE_MODE="demo"` (the default) runs the fictional preview with no sign-in, API, or database; anything added lasts until the page reloads. `VITE_RELEASE_MODE="live"` requires sign-in, the API server, and an up-to-date database. `GET /readyz` returns 503 until all migrations are applied.
 
 ### Server foundation
 
 The initial API is in `heartside/server/`, and Supabase migrations are in `heartside/supabase/migrations/`. Authentication uses Supabase Auth and server-side bearer-token verification.
 
-1. Create a Supabase project and apply both SQL migrations in order through the Supabase CLI or SQL editor.
+1. Create a Supabase project and apply every SQL migration in `heartside/supabase/migrations/`, in filename order, through the Supabase CLI or SQL editor.
 2. Copy `heartside/.env.example` to `heartside/.env` and provide the project's URL, browser anon key, and **server-only** service-role key.
 3. In Supabase Auth, configure the local and deployed application URLs as allowed redirect URLs; enable email/password and any OAuth providers you intend to display.
 4. Run `npm run dev:server` in one terminal and `npm run dev` in another.
@@ -149,13 +156,10 @@ This is an engineering assessment, not legal or compliance advice.
 - Circle invitations, role administration, MFA enforcement, account recovery policy, and authenticated client conversion from mock data remain to be implemented.
 - Document metadata and time-limited download URLs are implemented; secure upload, malware scanning, versioning, and retention workflows remain to be built.
 - No seed strategy or client-side conversion from mock data to the API has been completed.
-- No deployment infrastructure, Dockerfile, environment schema, or CI/CD workflow.
-- No test suite.
-- No Node version/engine declaration.
-- `express`, `dotenv`, and `@google/genai` are installed but not currently used by the application.
-- `.env.example` documents `GEMINI_API_KEY` and `APP_URL`, but neither is wired to an active server flow. Never expose real secret values through Vite client variables or committed `.env` files.
-- The production bundle is a single approximately 813 kB JavaScript chunk (about 180 kB gzip); introduce route/component code splitting as features become server-backed.
-- Vite warns that `__dirname` in `vite.config.ts` will be unsupported by its future native config loader; migrate to `import.meta.dirname` or another compatible approach.
+- No deployment infrastructure or Dockerfile. CI runs type checks, unit tests, database policy tests, and the build.
+- Tests cover permissions, validation, error mapping, and database policies; there are no end-to-end API or browser tests yet.
+- Never expose real secret values through Vite client variables or committed `.env` files.
+- When the API runs behind a load balancer or reverse proxy, set `TRUST_PROXY_HOPS` so rate limits see client addresses.
 
 ## Environment configuration
 

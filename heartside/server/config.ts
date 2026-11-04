@@ -4,6 +4,8 @@ import { z } from 'zod';
 const schema = z.object({
   NODE_ENV: z.enum(['development', 'test', 'production']).default('development'),
   PORT: z.coerce.number().int().positive().default(4000),
+  // Number of reverse proxies in front of the API, so rate limits see the client IP.
+  TRUST_PROXY_HOPS: z.coerce.number().int().min(0).default(0),
   APP_URL: z.string().url().default('http://localhost:3000'),
   SUPABASE_URL: z.string().url(),
   SUPABASE_SERVICE_ROLE_KEY: z.string().min(1),

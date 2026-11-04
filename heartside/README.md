@@ -1,20 +1,10 @@
-<div align="center">
-<img width="1200" height="475" alt="GHBanner" src="https://ai.google.dev/static/site-assets/images/share-ais-513315318.png" />
-</div>
+# Hearthside app
 
-# Run and deploy your AI Studio app
+Front end (`src/`), API server (`server/`), and Supabase migrations (`supabase/`).
+See the [repository README](../README.md) for setup, environment variables, and current limitations.
 
-This contains everything you need to run your app locally.
-
-View your app in AI Studio: https://ai.studio/apps/0d827d37-697f-40f1-83d5-2001b5cfb1bd
-
-## Run Locally
-
-**Prerequisites:**  Node.js
-
-
-1. Install dependencies:
-   `npm install`
-2. Set the `GEMINI_API_KEY` in [.env.local](.env.local) to your Gemini API key
-3. Run the app:
-   `npm run dev`
+```bash
+npm install
+npm run dev          # front end on http://localhost:3000
+npm run dev:server   # API on http://localhost:4000 (needs .env; see .env.example)
+```

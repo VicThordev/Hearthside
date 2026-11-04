@@ -66,7 +66,7 @@ export const TransportationRidesSegment: React.FC<TransportationRidesSegmentProp
       driverName: 'Sarah Vance',
       driverRole: 'Primary Caregiver & In-Clinic Escort',
       driverPhone: '(503) 555-0142',
-      driverAvatar: '/src/assets/images/sarah_vance_avatar_1792204247520.jpg',
+      driverAvatar: '/images/sarah_vance_avatar_1792204247520.jpg',
       vehicle: '2022 Honda CR-V (Silver Metallic)',
       licensePlate: 'OR 742-HVD',
       status: 'In Progress',
@@ -88,7 +88,7 @@ export const TransportationRidesSegment: React.FC<TransportationRidesSegmentProp
       driverName: 'David Vance',
       driverRole: 'Logistics Lead & Morning Driver',
       driverPhone: '(503) 555-0188',
-      driverAvatar: '/src/assets/images/david_vance_avatar_1792204257121.jpg',
+      driverAvatar: '/images/david_vance_avatar_1792204267362.jpg',
       vehicle: '2021 Subaru Outback (Autumn Green)',
       licensePlate: 'OR 918-BTM',
       status: 'Confirmed',
@@ -132,7 +132,7 @@ export const TransportationRidesSegment: React.FC<TransportationRidesSegmentProp
       driverName: 'Sarah Vance',
       driverRole: 'Primary Driver',
       driverPhone: '(503) 555-0142',
-      driverAvatar: '/src/assets/images/sarah_vance_avatar_1792204247520.jpg',
+      driverAvatar: '/images/sarah_vance_avatar_1792204247520.jpg',
       vehicle: '2022 Honda CR-V (Silver Metallic)',
       licensePlate: 'OR 742-HVD',
       status: 'Confirmed',
@@ -174,8 +174,8 @@ export const TransportationRidesSegment: React.FC<TransportationRidesSegmentProp
       driverRole: form.driverName === 'Sarah Vance' ? 'Primary Caregiver' : 'Family Driver',
       driverPhone: form.driverName === 'Sarah Vance' ? '(503) 555-0142' : '(503) 555-0188',
       driverAvatar: form.driverName === 'Sarah Vance'
-        ? '/src/assets/images/sarah_vance_avatar_1792204247520.jpg'
-        : '/src/assets/images/david_vance_avatar_1792204257121.jpg',
+        ? '/images/sarah_vance_avatar_1792204247520.jpg'
+        : '/images/david_vance_avatar_1792204267362.jpg',
       vehicle: form.vehicle,
       licensePlate: 'OR Verified',
       status: 'Confirmed',
