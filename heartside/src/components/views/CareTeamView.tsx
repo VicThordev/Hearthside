@@ -83,7 +83,7 @@ export const CareTeamView: React.FC<CareTeamViewProps> = ({
 
           <button
             onClick={onInviteClick}
-            className="inline-flex items-center gap-2 px-4 py-2 text-xs font-semibold text-white bg-[#00685f] hover:bg-[#005049] rounded-lg shadow-sm transition-colors"
+            className="shrink-0 whitespace-nowrap inline-flex items-center gap-2 px-4 py-2 text-xs font-semibold text-white bg-[#00685f] hover:bg-[#005049] rounded-lg shadow-sm transition-colors"
           >
             <UserPlus className="w-4 h-4" />
             <span>Invite New Member</span>
@@ -322,7 +322,7 @@ export const CareTeamView: React.FC<CareTeamViewProps> = ({
 
             {/* Table */}
             <div className="overflow-x-auto">
-              <table className="w-full text-left text-xs">
+              <table className="w-full min-w-[640px] text-left text-xs">
                 <thead>
                   <tr className="border-b border-[#E2E8F0] text-[11px] font-bold text-[#64748B] uppercase tracking-wider">
                     <th className="pb-2.5">Recipient & Contact</th>

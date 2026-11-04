@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import {
   Calendar,
   CheckCircle2,
@@ -18,7 +18,8 @@ import {
   ExternalLink,
   ShieldAlert,
   LogOut,
-  UserCheck
+  UserCheck,
+  X
 } from 'lucide-react';
 import { ViewMode } from '../types';
 
@@ -28,6 +29,8 @@ interface SidebarProps {
   onUpgradeClick?: () => void;
   onSwitchCircle?: () => void;
   onSignOut?: () => void;
+  mobileOpen?: boolean;
+  onMobileClose?: () => void;
 }
 
 export const Sidebar: React.FC<SidebarProps> = ({
@@ -35,11 +38,29 @@ export const Sidebar: React.FC<SidebarProps> = ({
   onViewChange,
   onUpgradeClick,
   onSwitchCircle,
-  onSignOut
+  onSignOut,
+  mobileOpen = false,
+  onMobileClose
 }) => {
   const [collapsed, setCollapsed] = useState(false);
   const [showUserMenu, setShowUserMenu] = useState(false);
   const [showCircleMenu, setShowCircleMenu] = useState(false);
+  const closeButtonRef = useRef<HTMLButtonElement>(null);
+
+  // The collapsed rail is a desktop-only state; the slide-in menu always shows full labels.
+  const isCollapsed = collapsed && !mobileOpen;
+
+  useEffect(() => {
+    if (!mobileOpen) return;
+    const opener = document.activeElement as HTMLElement | null;
+    closeButtonRef.current?.focus();
+    const onKeyDown = (event: KeyboardEvent) => { if (event.key === 'Escape') onMobileClose?.(); };
+    document.addEventListener('keydown', onKeyDown);
+    return () => {
+      document.removeEventListener('keydown', onKeyDown);
+      opener?.focus();
+    };
+  }, [mobileOpen, onMobileClose]);
 
   const navItems = [
     { id: 'landing' as ViewMode, label: 'Landing Page & Tour', icon: Sparkles },
@@ -55,10 +76,13 @@ export const Sidebar: React.FC<SidebarProps> = ({
   ];
 
   return (
+    <>
+    {mobileOpen && <div className="fixed inset-0 z-40 bg-black/40 xl:hidden" onClick={onMobileClose} aria-hidden="true" />}
     <aside
-      className={`relative bg-[#ffffff] border-r border-[#E2E8F0] flex flex-col justify-between transition-all duration-200 shrink-0 select-none z-20 ${
-        collapsed ? 'w-20' : 'w-64'
-      }`}
+      aria-label="Main navigation"
+      className={`fixed inset-y-0 left-0 z-50 w-72 max-w-[85vw] bg-[#ffffff] border-r border-[#E2E8F0] flex flex-col justify-between shrink-0 select-none max-xl:overflow-y-auto xl:[transition:width_200ms] xl:relative xl:inset-auto xl:z-20 xl:max-w-none xl:translate-x-0 xl:visible ${
+        mobileOpen ? 'translate-x-0 shadow-2xl [transition:transform_200ms]' : '-translate-x-full invisible [transition:transform_200ms,visibility_0s_200ms]'
+      } ${isCollapsed ? 'xl:w-20' : 'xl:w-64'}`}
     >
       {/* Top Header / Brand */}
       <div className="p-4 border-b border-[#E2E8F0]/80">
@@ -71,7 +95,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
             <div className="w-10 h-10 rounded-xl bg-[#00685f] flex items-center justify-center text-white shadow-sm shrink-0">
               <Heart className="w-5 h-5 fill-white" />
             </div>
-            {!collapsed && (
+            {!isCollapsed && (
               <div className="flex flex-col min-w-0">
                 <span className="font-display font-bold text-lg text-[#081d2c] leading-tight tracking-tight">
                   Hearthside
@@ -85,14 +109,22 @@ export const Sidebar: React.FC<SidebarProps> = ({
           <button
             onClick={() => setCollapsed(!collapsed)}
             title={collapsed ? "Expand sidebar" : "Collapse sidebar"}
-            className="p-1.5 text-[#64748B] hover:text-[#081d2c] hover:bg-[#F1F5F9] rounded-lg transition-colors"
+            className="hidden xl:block p-1.5 text-[#64748B] hover:text-[#081d2c] hover:bg-[#F1F5F9] rounded-lg transition-colors"
           >
-            {collapsed ? <ChevronsRight className="w-4 h-4" /> : <ChevronsLeft className="w-4 h-4" />}
+            {isCollapsed ? <ChevronsRight className="w-4 h-4" /> : <ChevronsLeft className="w-4 h-4" />}
+          </button>
+          <button
+            ref={closeButtonRef}
+            onClick={onMobileClose}
+            aria-label="Close menu"
+            className="xl:hidden p-2 text-[#64748B] hover:text-[#081d2c] hover:bg-[#F1F5F9] rounded-lg transition-colors"
+          >
+            <X className="w-5 h-5" />
           </button>
         </div>
 
         {/* Circle Selector */}
-        {!collapsed && (
+        {!isCollapsed && (
           <div className="mt-4 relative">
             <button
               onClick={() => setShowCircleMenu(!showCircleMenu)}
@@ -150,7 +182,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
       </div>
 
       {/* Navigation List */}
-      <nav className="p-3 flex-1 overflow-y-auto space-y-1">
+      <nav className="p-3 xl:flex-1 xl:overflow-y-auto space-y-1">
         {navItems.map((item) => {
           const Icon = item.icon;
           const isActive = currentView === item.id;
@@ -158,7 +190,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
             <button
               key={item.id}
               onClick={() => onViewChange(item.id)}
-              title={collapsed ? item.label : undefined}
+              title={isCollapsed ? item.label : undefined}
               className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all text-left ${
                 isActive
                   ? 'bg-[#00685f] text-white shadow-sm shadow-[#00685f]/20 font-semibold'
@@ -170,7 +202,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
                   isActive ? 'text-white' : 'text-[#64748B]'
                 }`}
               />
-              {!collapsed && <span className="truncate">{item.label}</span>}
+              {!isCollapsed && <span className="truncate">{item.label}</span>}
             </button>
           );
         })}
@@ -178,7 +210,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
 
       {/* Footer Area: Plan Card & User Profile */}
       <div className="p-3 border-t border-[#E2E8F0]/80 space-y-3">
-        {!collapsed && (
+        {!isCollapsed && (
           <div className="bg-[#F8FAFC] border border-[#E2E8F0] rounded-xl p-3">
             <div className="flex items-center justify-between text-xs">
               <span className="font-bold tracking-wider text-[10px] text-[#00685f] uppercase">
@@ -211,7 +243,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
           <button
             onClick={() => setShowUserMenu(!showUserMenu)}
             className={`w-full flex items-center gap-3 p-2 rounded-xl hover:bg-[#F1F5F9] transition-colors text-left ${
-              collapsed ? 'justify-center' : ''
+              isCollapsed ? 'justify-center' : ''
             }`}
           >
             <img
@@ -220,7 +252,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
               className="w-9 h-9 rounded-full object-cover border-2 border-[#00685f]/30 shrink-0"
               referrerPolicy="no-referrer"
             />
-            {!collapsed && (
+            {!isCollapsed && (
               <div className="min-w-0 flex-1">
                 <div className="text-sm font-semibold text-[#081d2c] truncate">
                   Sarah Vance
@@ -230,10 +262,10 @@ export const Sidebar: React.FC<SidebarProps> = ({
                 </div>
               </div>
             )}
-            {!collapsed && <MoreVertical className="w-4 h-4 text-[#64748B] shrink-0" />}
+            {!isCollapsed && <MoreVertical className="w-4 h-4 text-[#64748B] shrink-0" />}
           </button>
 
-          {showUserMenu && !collapsed && (
+          {showUserMenu && !isCollapsed && (
             <div className="absolute bottom-full left-0 right-0 mb-1 bg-white border border-[#E2E8F0] rounded-xl shadow-xl p-2 z-30">
               <div className="px-3 py-2 border-b border-[#E2E8F0]">
                 <div className="text-xs font-semibold text-[#081d2c]">Sarah Vance</div>
@@ -288,5 +320,6 @@ export const Sidebar: React.FC<SidebarProps> = ({
         </div>
       </div>
     </aside>
+    </>
   );
 };

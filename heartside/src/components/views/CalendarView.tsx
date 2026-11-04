@@ -99,9 +99,9 @@ export const CalendarView: React.FC<CalendarViewProps> = ({
   };
 
   return (
-    <div className="flex-1 flex flex-col xl:flex-row overflow-hidden bg-[#F6F9FF]">
+    <div className="flex-1 min-w-0 flex flex-col xl:flex-row overflow-y-auto xl:overflow-hidden bg-[#F6F9FF]">
       {/* Main Calendar View Area */}
-      <div className="flex-1 flex flex-col overflow-y-auto p-4 md:p-6 lg:p-8 space-y-6">
+      <div className="min-w-0 xl:flex-1 flex flex-col xl:overflow-y-auto p-4 md:p-6 lg:p-8 space-y-6">
         {/* Header Ribbon */}
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
           <div>
@@ -155,7 +155,7 @@ export const CalendarView: React.FC<CalendarViewProps> = ({
           {/* Row 1: View Modes & Caregiver Filters */}
           <div className="flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-3">
             {/* View Mode Segmented Controls */}
-            <div className="inline-flex p-1 bg-[#F1F5F9] border border-[#CBD5E1] rounded-xl self-start">
+            <div className="flex max-w-full overflow-x-auto no-scrollbar p-1 bg-[#F1F5F9] border border-[#CBD5E1] rounded-xl self-start [&_button]:shrink-0 [&_button]:whitespace-nowrap">
               <button
                 onClick={() => setViewMode('week')}
                 className={`px-3.5 py-1.5 text-xs font-semibold rounded-lg transition-all flex items-center gap-1.5 cursor-pointer ${
@@ -394,7 +394,7 @@ export const CalendarView: React.FC<CalendarViewProps> = ({
 
       {/* Right Event Detail Sidebar (Image 1 right panel) */}
       {selectedEvent && (activeTab === 'all' || activeTab === 'medical') && (
-        <div className="w-full xl:w-[420px] bg-white border-t xl:border-t-0 xl:border-l border-[#E2E8F0] p-6 overflow-y-auto space-y-6 shrink-0">
+        <div className="w-full xl:w-[420px] bg-white border-t xl:border-t-0 xl:border-l border-[#E2E8F0] p-4 md:p-6 xl:overflow-y-auto space-y-6 shrink-0">
         {/* Top actions & badge */}
         <div className="flex items-center justify-between">
           <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-[#E1F0FF] text-[#00685f] border border-[#CBD5E1]/50">

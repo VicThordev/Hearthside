@@ -40,7 +40,7 @@ export const ReportsView: React.FC = () => {
 
         <button
           onClick={() => alert('Generating 30-Day Clinical Summary PDF for Dr. Chen')}
-          className="inline-flex items-center gap-2 px-4 py-2 text-xs font-semibold text-white bg-[#00685f] hover:bg-[#005049] rounded-lg shadow-sm transition-colors self-start md:self-auto"
+          className="shrink-0 whitespace-nowrap inline-flex items-center gap-2 px-4 py-2 text-xs font-semibold text-white bg-[#00685f] hover:bg-[#005049] rounded-lg shadow-sm transition-colors self-start md:self-auto"
         >
           <Download className="w-4 h-4" />
           <span>Export Summary for Doctor (.PDF)</span>
@@ -107,7 +107,7 @@ export const ReportsView: React.FC = () => {
         </div>
 
         <div className="overflow-x-auto">
-          <table className="w-full text-left text-xs">
+          <table className="w-full min-w-[640px] text-left text-xs">
             <thead>
               <tr className="border-b border-[#E2E8F0] text-[11px] font-bold text-[#64748B] uppercase tracking-wider">
                 <th className="pb-2.5">Date</th>

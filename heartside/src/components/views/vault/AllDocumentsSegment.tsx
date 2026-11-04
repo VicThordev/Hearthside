@@ -343,7 +343,7 @@ export const AllDocumentsSegment: React.FC<AllDocumentsSegmentProps> = ({
               key={doc.id}
               className="p-5 md:p-6 rounded-2xl bg-white border border-[#E2E8F0] shadow-2xs hover:border-[#CBD5E1] transition-all space-y-4"
             >
-              <div className="flex items-start justify-between gap-4">
+              <div className="flex flex-col xl:flex-row xl:items-start justify-between gap-4">
                 <div className="flex items-start gap-3.5 min-w-0">
                   <div
                     className={`w-11 h-11 rounded-xl flex items-center justify-center shrink-0 shadow-2xs ${

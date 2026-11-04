@@ -100,7 +100,7 @@ export const NewItemModal: React.FC<NewItemModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 bg-black/40 backdrop-blur-xs flex items-center justify-center p-4 z-50">
+    <div className="modal-overlay fixed inset-0 bg-black/40 backdrop-blur-xs flex items-center justify-center p-4 z-50">
       <div className="bg-white rounded-2xl shadow-2xl border border-[#CBD5E1] w-full max-w-lg overflow-hidden animate-in fade-in zoom-in-95">
         {/* Modal Header */}
         <div className="p-4 border-b border-[#E2E8F0] flex items-center justify-between">

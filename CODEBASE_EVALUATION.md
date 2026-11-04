@@ -286,8 +286,8 @@ Run against the real Supabase project after the migrations were applied, using t
 | 🟠 High | `care-documents` bucket has no size or file-type limits. It existed before the migration, whose `on conflict do nothing` skipped them. | Run `202611040001_document_bucket_limits.sql`. |
 | 🟠 High | Deleting a circle removes document rows but leaves the stored files, which would then have no owner record. | Delete storage objects as part of circle deletion. |
 | 🟠 High | No API for document upload, tasks, medications, vitals, invitations, notifications or member management. Tables exist, but only circles, events, notes and document reads are served. | Build per feature. |
-| 🟠 Medium | After a page reload the signed-in user lands on the public landing page. The session itself survives. | Restore the portal view for signed-in users. |
-| 🟠 Medium | Phone layout: the sidebar takes 256 of 390 px and cannot be dismissed, squeezing the content. | Collapse it by default on narrow screens. |
+| ✅ Fixed | After a page reload the signed-in user landed on the public landing page. | The portal screen is kept in `sessionStorage` for the tab, and cleared by the landing page or sign-out. |
+| ✅ Fixed | Phone layout: the sidebar took 256 of 390 px and could not be dismissed. | See section 12. |
 | 🟡 Medium | Google sign-in opens a raw JSON error ("provider is not enabled"). Apple uses the same path but was not clicked. | Enable the providers or hide the buttons. |
 | 🟡 Medium | The invite code entered at sign-up is ignored. The shared-tablet PIN accepts any 4 digits; in live mode it grants nothing but shows a success state first. | Remove or implement them. |
 
@@ -298,3 +298,22 @@ Run against the real Supabase project after the migrations were applied, using t
 - Screen-reader and keyboard accessibility.
 
 **Residue:** `audit_events` retains the test runs' rows. They hold only IDs and action names, and cannot be removed because the table is append-only.
+
+---
+
+## 12. Mobile and tablet pass — 4 November 2026
+
+Audited every screen, sub-tab, the landing page and sign-in in demo mode, at 320, 375 and 390 px phones, phone landscape, 768, 820 and 1024 px tablets, and 1280 and 1440 px desktops.
+
+| Change | Detail |
+| --- | --- |
+| Navigation | Below 1280 px the sidebar is a slide-in menu with backdrop, Esc to close and focus handling. Content gets the full width. |
+| Header | Compact on small screens. Search is reachable on phones and tablets through an icon. New and Notifications menus stay on-screen. |
+| Viewport | The app uses the visible height (`dvh`), so a phone's address bar cannot cut it off. |
+| Calendar | The page scrolls as one column below 1280 px, and the week grid scrolls sideways inside its card. |
+| Tables and rows | Tables scroll instead of crushing columns. Vault and Settings rows stack on small screens. Action buttons keep their label on one line. |
+| Dialogs | All overlays centre when they fit and scroll from the top when they do not, so a close button is never out of reach. |
+| Landing page | Added a phone and tablet menu; the section links had no route on phones. Removed a duplicate floating button stacked in the same corner. |
+| Touch | Fields are 16 px on touch screens, which stops iPhone auto-zoom. Touch controls are at least 28 px. Hover-only controls stay visible. |
+
+Checked in headless Chrome with touch and device emulation. Not checked on physical devices, or in Safari, which is the browser behind every iPhone.

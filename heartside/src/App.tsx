@@ -1,4 +1,4 @@
-import React, { lazy, Suspense, useEffect, useState } from 'react';
+import React, { lazy, Suspense, useCallback, useEffect, useState } from 'react';
 import { Sidebar } from './components/Sidebar';
 import { TopHeader } from './components/TopHeader';
 
@@ -6,7 +6,7 @@ import { useAuth } from './auth/AuthProvider';
 import { apiFetch, getActiveCircleId, setActiveCircleId } from './lib/api';
 import { DemoBanner } from './components/DemoBanner';
 import { ErrorBoundary } from './components/ErrorBoundary';
-import { isDemoMode } from './lib/runtime';
+import { getSavedView, isDemoMode, saveView } from './lib/runtime';
 
 const CalendarView = lazy(() => import('./components/views/CalendarView').then(({ CalendarView }) => ({ default: CalendarView })));
 const LandingPageView = lazy(() => import('./components/views/LandingPageView').then(({ LandingPageView }) => ({ default: LandingPageView })));
@@ -42,7 +42,7 @@ type CircleSummary = { id: string; name: string; timezone: string };
 
 export default function App() {
   const { user, loading, signOut } = useAuth();
-  const [currentView, setCurrentView] = useState<ViewMode>('landing');
+  const [currentView, setCurrentView] = useState<ViewMode>(() => getSavedView() ?? 'landing');
   const [authMode, setAuthMode] = useState<'signup' | 'login'>('signup');
   
   // App state
@@ -62,10 +62,13 @@ export default function App() {
   const [showEscalationTest, setShowEscalationTest] = useState(false);
   const [previewDoc, setPreviewDoc] = useState<VaultDocument | null>(null);
   const [showSwitchCircleNotice, setShowSwitchCircleNotice] = useState(false);
+  const [mobileNavOpen, setMobileNavOpen] = useState(false);
   const [circleState, setCircleState] = useState<'loading' | 'ready' | 'needs-setup' | 'error'>('loading');
   const [circles, setCircles] = useState<CircleSummary[]>([]);
   const [activeCircleId, setActiveCircle] = useState<string | null>(null);
   const [circleReload, setCircleReload] = useState(0);
+
+  useEffect(() => { saveView(currentView); }, [currentView]);
 
   useEffect(() => {
     if (!isDemoMode) return;
@@ -100,6 +103,8 @@ export default function App() {
   }, [user, circleReload]);
 
   // Handlers
+  const closeMobileNav = useCallback(() => setMobileNavOpen(false), []);
+
   function selectCircle(circleId: string | null) {
     setActiveCircleId(circleId);
     setActiveCircle(circleId);
@@ -196,7 +201,7 @@ export default function App() {
         /></Suspense>
         
         {/* Floating Quick Action to jump directly to Active Care Circle */}
-        <div className="fixed bottom-6 right-6 z-50">
+        <div className="fixed bottom-4 right-4 sm:bottom-6 sm:right-6 z-40">
           <button
             onClick={() => setCurrentView(user || isDemoMode ? 'overview' : 'auth')}
             className="flex items-center gap-2.5 px-5 py-3 rounded-full bg-[#081d2c] hover:bg-[#00685f] text-white text-xs font-bold shadow-2xl border border-white/20 transition-all transform hover:scale-105 cursor-pointer"
@@ -239,15 +244,17 @@ export default function App() {
   return (
     <Suspense fallback={<div className="min-h-screen grid place-items-center bg-[#F6F9FF] text-sm text-[#475569]">Loading view…</div>}>
     {/* Keyed by circle so per-circle view state resets when the user switches circles. */}
-    <div key={activeCircleId ?? 'none'} className="flex h-screen w-screen overflow-hidden bg-[#F6F9FF] text-[#081d2c] font-sans">
+    <div key={activeCircleId ?? 'none'} className="flex h-dvh w-full overflow-hidden bg-[#F6F9FF] text-[#081d2c] font-sans">
       <a className="skip-link" href="#main-content">Skip to main content</a>
       {/* Left Sidebar */}
       <Sidebar
         currentView={currentView}
-        onViewChange={(view) => setCurrentView(view)}
+        onViewChange={(view) => { setCurrentView(view); setMobileNavOpen(false); }}
         onUpgradeClick={() => setCurrentView('settings')}
-        onSwitchCircle={() => setShowSwitchCircleNotice(true)}
-        onSignOut={() => { selectCircle(null); if (user) void signOut(); setCurrentView('landing'); }}
+        onSwitchCircle={() => { setMobileNavOpen(false); setShowSwitchCircleNotice(true); }}
+        onSignOut={() => { setMobileNavOpen(false); selectCircle(null); if (user) void signOut(); setCurrentView('landing'); }}
+        mobileOpen={mobileNavOpen}
+        onMobileClose={closeMobileNav}
       />
 
       {/* Main Content Area */}
@@ -258,6 +265,7 @@ export default function App() {
           currentView={currentView}
           notifications={notifications}
           onOpenNewModal={openPreviewOnlyWorkflow}
+          onOpenMobileNav={() => setMobileNavOpen(true)}
           onSearchSelect={(term) => {
             if (term.toLowerCase().includes('doc') || term.toLowerCase().includes('poa')) {
               setCurrentView('vault');
@@ -374,7 +382,7 @@ export default function App() {
       )}
 
       {showSwitchCircleNotice && (
-        <div className="fixed inset-0 bg-black/40 backdrop-blur-xs flex items-center justify-center p-4 z-50">
+        <div className="modal-overlay fixed inset-0 bg-black/40 backdrop-blur-xs flex items-center justify-center p-4 z-50">
           <div className="bg-white rounded-2xl shadow-2xl border border-[#CBD5E1] w-full max-w-md p-6 space-y-4">
             <h3 className="font-bold text-base font-display text-[#081d2c]">
               Switch Care Circle

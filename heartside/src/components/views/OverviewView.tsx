@@ -91,7 +91,7 @@ export const OverviewView: React.FC<OverviewViewProps> = ({
       )}
 
       {/* 3 Overview Quick Panels */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
         {/* Today's Schedule Card */}
         <div className="p-5 rounded-2xl bg-white border border-[#E2E8F0] shadow-2xs space-y-4 flex flex-col justify-between">
           <div>

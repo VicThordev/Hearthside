@@ -166,7 +166,7 @@ export const SecurityAccessLogsSettings: React.FC = () => {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div className="p-4 rounded-xl bg-[#F8FAFC] border border-[#E2E8F0] flex items-center justify-between">
+          <div className="p-4 rounded-xl bg-[#F8FAFC] border border-[#E2E8F0] flex flex-wrap gap-3 items-center justify-between">
             <div>
               <span className="text-xs font-bold text-[#081d2c] block">Enforce Two-Factor Authentication (2FA)</span>
               <span className="text-[11px] text-[#64748B] block mt-0.5">
@@ -181,7 +181,7 @@ export const SecurityAccessLogsSettings: React.FC = () => {
             />
           </div>
 
-          <div className="p-4 rounded-xl bg-[#F8FAFC] border border-[#E2E8F0] flex items-center justify-between">
+          <div className="p-4 rounded-xl bg-[#F8FAFC] border border-[#E2E8F0] flex flex-wrap gap-3 items-center justify-between">
             <div>
               <span className="text-xs font-bold text-[#081d2c] block">Auto-Lock Inactive Sessions</span>
               <span className="text-[11px] text-[#64748B] block mt-0.5">
@@ -225,7 +225,7 @@ export const SecurityAccessLogsSettings: React.FC = () => {
           {sessions.map(session => {
             const Icon = session.icon;
             return (
-              <div key={session.id} className="p-3.5 flex items-center justify-between bg-white hover:bg-slate-50/50 transition-colors">
+              <div key={session.id} className="p-3.5 flex flex-wrap gap-2 items-center justify-between bg-white hover:bg-slate-50/50 transition-colors">
                 <div className="flex items-center gap-3">
                   <div className="w-8 h-8 rounded-lg bg-slate-100 text-[#475569] flex items-center justify-center">
                     <Icon className="w-4 h-4" />
@@ -322,7 +322,7 @@ export const SecurityAccessLogsSettings: React.FC = () => {
         </div>
 
         <div className="overflow-x-auto">
-          <table className="w-full text-xs text-left">
+          <table className="w-full min-w-[640px] text-xs text-left">
             <thead>
               <tr className="border-b border-[#E2E8F0] text-[11px] uppercase font-bold text-[#64748B]">
                 <th className="py-2.5 px-3">Timestamp</th>

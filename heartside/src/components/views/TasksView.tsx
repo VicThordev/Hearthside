@@ -407,7 +407,7 @@ export const TasksView: React.FC = () => {
         <div className="flex items-center gap-2.5 self-start md:self-auto">
           <button
             onClick={() => setShowAddModal(true)}
-            className="inline-flex items-center gap-2 px-4 py-2 text-xs font-semibold text-white bg-[#00685f] hover:bg-[#005049] rounded-xl shadow-xs transition-colors cursor-pointer"
+            className="shrink-0 whitespace-nowrap inline-flex items-center gap-2 px-4 py-2 text-xs font-semibold text-white bg-[#00685f] hover:bg-[#005049] rounded-xl shadow-xs transition-colors cursor-pointer"
           >
             <Plus className="w-4 h-4" />
             <span>Create New Task</span>
@@ -888,7 +888,7 @@ export const TasksView: React.FC = () => {
       {viewMode === 'list' && (
         <div className="bg-white rounded-2xl border border-[#E2E8F0] shadow-2xs overflow-hidden">
           <div className="overflow-x-auto">
-            <table className="w-full text-xs text-left">
+            <table className="w-full min-w-[640px] text-xs text-left">
               <thead>
                 <tr className="border-b border-[#E2E8F0] text-[11px] uppercase font-bold text-[#64748B] bg-[#F8FAFC]">
                   <th className="py-3 px-4 w-12 text-center">Status</th>
@@ -957,7 +957,7 @@ export const TasksView: React.FC = () => {
 
       {/* Modal: Create New Task */}
       {showAddModal && (
-        <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-xs flex items-center justify-center p-4">
+        <div className="modal-overlay fixed inset-0 z-50 bg-black/50 backdrop-blur-xs flex items-center justify-center p-4">
           <div className="bg-white rounded-2xl max-w-lg w-full p-6 shadow-2xl border border-[#E2E8F0] space-y-4 max-h-[90vh] overflow-y-auto">
             <div className="flex items-center justify-between pb-2 border-b border-[#F1F5F9]">
               <div className="flex items-center gap-2">

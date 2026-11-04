@@ -254,7 +254,7 @@ export const DataExportDeletionSettings: React.FC = () => {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div className="p-4 rounded-xl bg-[#F8FAFC] border border-[#E2E8F0] flex items-center justify-between">
+          <div className="p-4 rounded-xl bg-[#F8FAFC] border border-[#E2E8F0] flex flex-wrap gap-3 items-center justify-between">
             <div>
               <span className="text-xs font-bold text-[#081d2c] block">Automated Weekly Encrypted Backup</span>
               <span className="text-[11px] text-[#64748B] block mt-0.5">
@@ -269,7 +269,7 @@ export const DataExportDeletionSettings: React.FC = () => {
             />
           </div>
 
-          <div className="p-4 rounded-xl bg-[#F8FAFC] border border-[#E2E8F0] flex items-center justify-between">
+          <div className="p-4 rounded-xl bg-[#F8FAFC] border border-[#E2E8F0] flex flex-wrap gap-3 items-center justify-between">
             <div>
               <span className="text-xs font-bold text-[#081d2c] block">Data Retention Schedule</span>
               <span className="text-[11px] text-[#64748B] block mt-0.5">
@@ -329,7 +329,7 @@ export const DataExportDeletionSettings: React.FC = () => {
 
       {/* Transfer Ownership Modal */}
       {showTransferModal && (
-        <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-xs flex items-center justify-center p-4">
+        <div className="modal-overlay fixed inset-0 z-50 bg-black/50 backdrop-blur-xs flex items-center justify-center p-4">
           <div className="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl space-y-4 border border-[#E2E8F0]">
             <div className="flex items-center justify-between">
               <h3 className="font-bold text-base text-[#081d2c]">Transfer Circle Ownership</h3>
@@ -381,7 +381,7 @@ export const DataExportDeletionSettings: React.FC = () => {
 
       {/* Deactivate Modal */}
       {showDeactivateModal && (
-        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4">
+        <div className="modal-overlay fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4">
           <div className="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl space-y-4 border border-red-200">
             <div className="flex items-center gap-3 text-red-600">
               <AlertTriangle className="w-6 h-6" />

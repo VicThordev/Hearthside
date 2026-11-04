@@ -153,7 +153,7 @@ export const LegalPoaDirectivesSegment: React.FC<LegalPoaDirectivesSegmentProps>
     <div className="space-y-6">
       {/* Segment Header Banner */}
       <div className="p-5 md:p-6 rounded-2xl bg-gradient-to-r from-purple-50 via-indigo-50/40 to-white border border-[#CBD5E1] shadow-2xs">
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div className="flex flex-col 2xl:flex-row 2xl:items-center justify-between gap-4">
           <div className="flex items-start gap-4">
             <div className="w-12 h-12 rounded-2xl bg-purple-700 text-white flex items-center justify-center shrink-0 shadow-sm">
               <Scale className="w-6 h-6" />
@@ -238,7 +238,7 @@ export const LegalPoaDirectivesSegment: React.FC<LegalPoaDirectivesSegmentProps>
 
       {/* POLST Fridge Notice Modal */}
       {showFridgeNotice && (
-        <div className="fixed inset-0 bg-black/50 backdrop-blur-xs flex items-center justify-center p-4 z-50">
+        <div className="modal-overlay fixed inset-0 bg-black/50 backdrop-blur-xs flex items-center justify-center p-4 z-50">
           <div className="bg-white rounded-2xl shadow-2xl border border-purple-200 w-full max-w-lg p-6 space-y-4 animate-in fade-in zoom-in-95">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
@@ -364,7 +364,7 @@ export const LegalPoaDirectivesSegment: React.FC<LegalPoaDirectivesSegmentProps>
               key={doc.id}
               className="p-5 md:p-6 rounded-2xl bg-white border border-[#E2E8F0] shadow-2xs hover:border-[#CBD5E1] transition-all space-y-4"
             >
-              <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
+              <div className="flex flex-col xl:flex-row xl:items-start justify-between gap-4">
                 <div className="flex items-start gap-3.5 min-w-0">
                   <div className="w-11 h-11 rounded-xl bg-purple-100 text-purple-800 flex items-center justify-center shrink-0 shadow-2xs">
                     <Lock className="w-5 h-5" />

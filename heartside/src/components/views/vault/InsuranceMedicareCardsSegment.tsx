@@ -172,7 +172,7 @@ export const InsuranceMedicareCardsSegment: React.FC<InsuranceMedicareCardsSegme
     <div className="space-y-6">
       {/* Header Banner */}
       <div className="p-5 md:p-6 rounded-2xl bg-gradient-to-r from-emerald-50 via-teal-50/40 to-white border border-[#CBD5E1] shadow-2xs">
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div className="flex flex-col 2xl:flex-row 2xl:items-center justify-between gap-4">
           <div className="flex items-start gap-4">
             <div className="w-12 h-12 rounded-2xl bg-[#00685f] text-white flex items-center justify-center shrink-0 shadow-sm">
               <CreditCard className="w-6 h-6" />
@@ -324,8 +324,8 @@ export const InsuranceMedicareCardsSegment: React.FC<InsuranceMedicareCardsSegme
                     {!isFlipped ? (
                       /* FRONT SIDE */
                       <>
-                        <div className="flex items-start justify-between gap-3">
-                          <div>
+                        <div className="flex flex-wrap items-start justify-between gap-2">
+                          <div className="min-w-0 flex-1 basis-40">
                             <div className="text-[10px] uppercase font-bold tracking-widest text-slate-300">
                               {card.issuer}
                             </div>
@@ -529,7 +529,7 @@ export const InsuranceMedicareCardsSegment: React.FC<InsuranceMedicareCardsSegme
           </div>
 
           <div className="overflow-x-auto">
-            <table className="w-full text-xs text-left">
+            <table className="w-full min-w-[640px] text-xs text-left">
               <thead>
                 <tr className="border-b border-slate-200 text-[#64748B] font-bold uppercase text-[10px]">
                   <th className="py-2.5 px-3">Service Category</th>

@@ -232,7 +232,7 @@ export const MemberNotificationsSettings: React.FC = () => {
         </div>
 
         <div className="overflow-x-auto">
-          <table className="w-full text-xs text-left">
+          <table className="w-full min-w-[640px] text-xs text-left">
             <thead>
               <tr className="border-b border-[#E2E8F0] text-[11px] uppercase font-bold text-[#64748B]">
                 <th className="py-3 px-3">Event Type</th>

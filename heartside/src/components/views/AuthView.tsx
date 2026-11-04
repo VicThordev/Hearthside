@@ -488,7 +488,7 @@ export const AuthView: React.FC<AuthViewProps> = ({
 
       {/* Senior Tablet / Telephone Modal */}
       {showSeniorHelpModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-xs animate-fadeIn">
+        <div className="modal-overlay fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-xs animate-fadeIn">
           <div className="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl border border-[#E2E8F0] relative">
             <button
               onClick={() => setShowSeniorHelpModal(false)}

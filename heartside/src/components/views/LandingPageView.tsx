@@ -30,7 +30,9 @@ import {
   FileCheck2,
   HelpCircle,
   XCircle,
-  ExternalLink
+  ExternalLink,
+  Menu,
+  X
 } from 'lucide-react';
 import { ViewMode } from '../../types';
 
@@ -43,6 +45,7 @@ export const LandingPageView: React.FC<LandingPageViewProps> = ({ onEnterApp, on
   const [pricingCycle, setPricingCycle] = useState<'monthly' | 'annual'>('monthly');
   const [openFaqIndex, setOpenFaqIndex] = useState<number | null>(0);
   const [heroTaskChecked, setHeroTaskChecked] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const scrollToSection = (id: string) => {
     const el = document.getElementById(id);
@@ -88,17 +91,17 @@ export const LandingPageView: React.FC<LandingPageViewProps> = ({ onEnterApp, on
               <Heart className="w-5 h-5 fill-teal-100 text-teal-100" />
             </div>
             <div>
-              <div className="text-xl font-bold tracking-tight text-[#0f172a] flex items-center gap-1.5">
+              <div className="text-lg sm:text-xl font-bold tracking-tight text-[#0f172a] flex items-center gap-1.5">
                 Hearthside
               </div>
-              <p className="text-[11px] font-medium text-[#64748b] -mt-1 tracking-wide">
+              <p className="hidden sm:block text-[11px] font-medium text-[#64748b] -mt-1 tracking-wide">
                 Better Care, Together
               </p>
             </div>
           </div>
 
           {/* Nav links */}
-          <nav className="hidden md:flex items-center gap-8 text-[13px] font-medium text-[#475569]">
+          <nav className="hidden lg:flex items-center gap-8 text-[13px] font-medium text-[#475569]">
             <button
               onClick={() => scrollToSection('features')}
               className="hover:text-[#00685f] transition-colors cursor-pointer"
@@ -132,31 +135,66 @@ export const LandingPageView: React.FC<LandingPageViewProps> = ({ onEnterApp, on
           </nav>
 
           {/* Right actions */}
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-1.5 sm:gap-3">
             <button
               onClick={() => (onOpenAuth ? onOpenAuth('login') : onEnterApp('auth'))}
-              className="text-xs font-semibold text-[#475569] hover:text-[#0f172a] px-3 py-2 cursor-pointer transition-colors"
+              className="hidden sm:block whitespace-nowrap text-xs font-semibold text-[#475569] hover:text-[#0f172a] px-3 py-2 cursor-pointer transition-colors"
             >
               Sign In
             </button>
 
             <button
               onClick={() => (onOpenAuth ? onOpenAuth('signup') : onEnterApp('auth'))}
-              className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full text-xs font-semibold text-white bg-[#00685f] hover:bg-[#00524b] shadow-sm shadow-[#00685f]/25 transition-all cursor-pointer hover:shadow-md hover:-translate-y-0.5 active:translate-y-0"
+              className="inline-flex items-center gap-1.5 whitespace-nowrap px-3 sm:px-4 py-2 rounded-full text-xs font-semibold text-white bg-[#00685f] hover:bg-[#00524b] shadow-sm shadow-[#00685f]/25 transition-all cursor-pointer hover:shadow-md hover:-translate-y-0.5 active:translate-y-0"
             >
               <span>Start Free</span>
-              <ArrowRight className="w-3.5 h-3.5" />
+              <ArrowRight className="hidden sm:block w-3.5 h-3.5" />
             </button>
 
             <button
               onClick={() => onEnterApp('overview')}
               title="Open Care Circle Profile"
-              className="w-9 h-9 rounded-full bg-[#E6F4F1] border border-[#B2DFDB] text-[#00685f] flex items-center justify-center hover:bg-[#D4EFE9] transition-colors cursor-pointer"
+              className="hidden sm:flex w-9 h-9 rounded-full bg-[#E6F4F1] border border-[#B2DFDB] text-[#00685f] flex items-center justify-center hover:bg-[#D4EFE9] transition-colors cursor-pointer"
             >
               <User className="w-4 h-4" />
             </button>
+
+            <button
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              aria-label={mobileMenuOpen ? 'Close menu' : 'Open menu'}
+              aria-expanded={mobileMenuOpen}
+              className="lg:hidden p-2 text-[#0f172a] hover:bg-slate-100 rounded-lg"
+            >
+              {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+            </button>
           </div>
         </div>
+
+        {mobileMenuOpen && (
+          <nav className="lg:hidden border-t border-[#E2E8F0] bg-white px-4 py-2 max-h-[calc(100dvh-6rem)] overflow-y-auto">
+            {[
+              ['features', 'Features'],
+              ['how-it-works', 'How It Works'],
+              ['pricing', 'Pricing'],
+              ['security', 'Security & Privacy'],
+              ['faq', 'About Us'],
+            ].map(([id, label]) => (
+              <button
+                key={id}
+                onClick={() => { setMobileMenuOpen(false); scrollToSection(id); }}
+                className="block w-full text-left px-2 py-3 text-sm font-medium text-[#475569] hover:text-[#00685f]"
+              >
+                {label}
+              </button>
+            ))}
+            <button
+              onClick={() => { setMobileMenuOpen(false); if (onOpenAuth) onOpenAuth('login'); else onEnterApp('auth'); }}
+              className="sm:hidden block w-full text-left px-2 py-3 text-sm font-semibold text-[#00685f] border-t border-[#E2E8F0]"
+            >
+              Sign In
+            </button>
+          </nav>
+        )}
       </header>
 
       {/* 2. HERO / WELCOME SECTION WITH MILD LOW-OPACITY TEAL AESTHETIC BACKGROUND */}
@@ -248,7 +286,7 @@ export const LandingPageView: React.FC<LandingPageViewProps> = ({ onEnterApp, on
               </div>
 
               {/* Status Badges */}
-              <div className="flex items-center gap-2">
+              <div className="flex flex-wrap items-center gap-2">
                 <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold bg-[#E8F8F5] text-[#0D9488] border border-[#CCFBF1]">
                   <CheckCircle2 className="w-3.5 h-3.5" />
                   {heroTaskChecked ? '3 Completed' : '2 Completed'}
@@ -1358,17 +1396,6 @@ export const LandingPageView: React.FC<LandingPageViewProps> = ({ onEnterApp, on
         </div>
       </footer>
 
-      {/* Floating Care Portal Launcher Pill (Bottom-Right for easy navigation back to app anytime) */}
-      <div className="fixed bottom-6 right-6 z-40">
-        <button
-          onClick={() => onEnterApp('overview')}
-          className="flex items-center gap-2 px-4 py-2.5 rounded-full bg-[#081d2c] text-white text-xs font-semibold shadow-xl hover:bg-[#00685f] hover:scale-105 transition-all cursor-pointer border border-white/20 group"
-        >
-          <div className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></div>
-          <span>Open Eleanor's Care Circle</span>
-          <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" />
-        </button>
-      </div>
     </div>
   );
 };

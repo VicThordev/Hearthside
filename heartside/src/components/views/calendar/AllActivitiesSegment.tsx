@@ -475,7 +475,7 @@ export const AllActivitiesSegment: React.FC<AllActivitiesSegmentProps> = ({
       <div className="bg-gradient-to-r from-[#00685f] to-[#0a4d47] text-white rounded-2xl p-6 shadow-sm relative overflow-hidden">
         <div className="absolute right-0 top-0 translate-x-8 -translate-y-8 w-64 h-64 bg-white/5 rounded-full blur-2xl pointer-events-none" />
 
-        <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
+        <div className="relative z-10 flex flex-col 2xl:flex-row 2xl:items-center justify-between gap-6">
           <div className="space-y-2 max-w-2xl">
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/15 text-white text-xs font-medium backdrop-blur-xs">
               <Sparkles className="w-3.5 h-3.5 text-teal-200" />
@@ -671,9 +671,9 @@ export const AllActivitiesSegment: React.FC<AllActivitiesSegmentProps> = ({
 
       {/* VIEW 1: 7-DAY WEEK GRID */}
       {activeViewMode === 'week' && (
-        <div className="bg-white border border-[#E2E8F0] rounded-2xl shadow-sm overflow-hidden">
+        <div className="bg-white border border-[#E2E8F0] rounded-2xl shadow-sm overflow-x-auto">
           {/* Day Headers */}
-          <div className="grid grid-cols-7 border-b border-[#E2E8F0] text-center">
+          <div className="grid grid-cols-7 min-w-[980px] border-b border-[#E2E8F0] text-center">
             {[
               { day: 'MON', date: '21', isToday: false },
               { day: 'TUE', date: '22', isToday: false },
@@ -707,7 +707,7 @@ export const AllActivitiesSegment: React.FC<AllActivitiesSegmentProps> = ({
           </div>
 
           {/* Day Event Columns */}
-          <div className="grid grid-cols-7 min-h-[460px] divide-x divide-[#E2E8F0] bg-white">
+          <div className="grid grid-cols-7 min-w-[980px] min-h-[460px] divide-x divide-[#E2E8F0] bg-white">
             {['MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT', 'SUN'].map((day) => {
               const dayActivities = filteredActivities.filter(a => a.dayOfWeek === day);
               const isTodayColumn = day === 'THU';
@@ -1119,7 +1119,7 @@ export const AllActivitiesSegment: React.FC<AllActivitiesSegmentProps> = ({
 
       {/* MODAL: SCHEDULE NEW ACTIVITY */}
       {showAddModal && (
-        <div className="fixed inset-0 z-50 bg-[#081d2c]/60 backdrop-blur-xs flex items-center justify-center p-4">
+        <div className="modal-overlay fixed inset-0 z-50 bg-[#081d2c]/60 backdrop-blur-xs flex items-center justify-center p-4">
           <div className="bg-white rounded-2xl max-w-lg w-full p-6 shadow-2xl border border-slate-200 space-y-4 max-h-[90vh] overflow-y-auto">
             <div className="flex items-center justify-between pb-3 border-b border-slate-100">
               <div className="flex items-center gap-2">

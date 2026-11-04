@@ -147,7 +147,7 @@ export const CareNotesView: React.FC<CareNotesViewProps> = ({
 
         <button
           onClick={() => setComposerOpen(!composerOpen)}
-          className="inline-flex items-center gap-2 px-4 py-2 text-xs font-semibold text-white bg-[#00685f] hover:bg-[#005049] rounded-xl shadow-xs transition-colors self-start md:self-auto shrink-0 cursor-pointer"
+          className="shrink-0 whitespace-nowrap inline-flex items-center gap-2 px-4 py-2 text-xs font-semibold text-white bg-[#00685f] hover:bg-[#005049] rounded-xl shadow-xs transition-colors self-start md:self-auto shrink-0 cursor-pointer"
         >
           <FileText className="w-4 h-4" />
           <span>Post Care Update</span>

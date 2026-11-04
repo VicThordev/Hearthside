@@ -62,3 +62,21 @@
 ::-webkit-scrollbar-thumb:hover {
   background: #94a3b8;
 }
+
+/* Controls revealed on hover must stay visible on touch screens, which have no hover. */
+@media (hover: hover) {
+  .hover-reveal { opacity: 0; transition: opacity 150ms; }
+  .group:hover .hover-reveal, .hover-reveal:focus-visible { opacity: 1; }
+}
+
+/* iOS zooms the whole page when a focused field is under 16px, which disorients on phones. */
+@media (pointer: coarse) {
+  input, select, textarea { font-size: 16px !important; }
+  /* Small text links and icon buttons stay comfortably tappable without changing desktop layout. */
+  button { min-height: 28px; min-width: 28px; }
+}
+
+/* Centres a dialog when it fits, and scrolls from its top when it does not, so a tall
+   dialog on a short screen never pushes its heading or close button out of reach. */
+.modal-overlay { overflow-y: auto; align-items: flex-start; }
+.modal-overlay > * { margin-block: auto; flex-shrink: 0; }
