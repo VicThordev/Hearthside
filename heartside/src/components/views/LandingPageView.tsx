@@ -258,22 +258,22 @@ export const LandingPageView: React.FC<LandingPageViewProps> = ({ onEnterApp, on
           </div>
         </div>
 
-        {/* 3. HERO DASHBOARD PREVIEW CARD (Eleanor Vance's Care Circle) */}
+        {/* 3. HERO DASHBOARD PREVIEW CARD (illustrative example with no real people) */}
         <div className="mt-14 max-w-5xl mx-auto text-left">
           <div className="bg-white rounded-2xl border border-[#CBD5E1]/70 shadow-xl overflow-hidden">
             {/* Card Header Bar */}
             <div className="bg-[#FFFFFF] border-b border-[#E2E8F0] p-4 sm:p-5 flex flex-wrap items-center justify-between gap-4">
               <div className="flex items-center gap-3.5">
                 <div className="w-11 h-11 rounded-xl bg-[#E6F4F1] border border-[#B2DFDB] text-[#00685f] font-bold text-base flex items-center justify-center shrink-0">
-                  EV
+                  MC
                 </div>
                 <div>
                   <div className="flex items-center gap-2 flex-wrap">
                     <h3 className="text-base font-bold text-[#0f172a]">
-                      Eleanor Vance's Care Circle
+                      Example: Mom's Care Circle
                     </h3>
                     <span className="text-xs text-[#64748b] font-normal">
-                      Age 79 • Portland, OR
+                      Illustration only
                     </span>
                   </div>
                   <div className="flex items-center gap-1.5 mt-0.5">
@@ -305,10 +305,10 @@ export const LandingPageView: React.FC<LandingPageViewProps> = ({ onEnterApp, on
             <div className="bg-[#F0FDF9] border-b border-[#CCFBF1] px-4 sm:px-5 py-3 flex items-start sm:items-center justify-between gap-3 text-xs">
               <div className="flex items-start sm:items-center gap-2.5">
                 <div className="w-6 h-6 rounded-full bg-[#00685f] text-white flex items-center justify-center font-bold text-[10px] shrink-0 mt-0.5 sm:mt-0">
-                  DV
+                  YB
                 </div>
                 <div className="text-[#0f172a]">
-                  <span className="font-semibold text-[#00685f]">David Vance (Son)</span> posted a fresh care update:
+                  <span className="font-semibold text-[#00685f]">Your brother</span> posted a fresh care update:
                   <span className="italic text-[#334155] ml-1">
                     "Mom had a great 30-minute walk in the rose garden today! Blood pressure stable at 122/80."
                   </span>
@@ -350,9 +350,9 @@ export const LandingPageView: React.FC<LandingPageViewProps> = ({ onEnterApp, on
                       </p>
                       <div className="flex items-center gap-1.5 mt-1 text-xs text-[#334155]">
                         <span className="w-4 h-4 rounded-full bg-[#00685f]/15 text-[#00685f] text-[9px] font-bold flex items-center justify-center">
-                          DV
+                          YB
                         </span>
-                        <span>Assigned to: <strong>David Vance (Son)</strong></span>
+                        <span>Assigned to: <strong>Your brother</strong></span>
                       </div>
                     </div>
                   </div>
@@ -376,9 +376,9 @@ export const LandingPageView: React.FC<LandingPageViewProps> = ({ onEnterApp, on
                       </p>
                       <div className="flex items-center gap-1.5 mt-1 text-xs text-[#334155]">
                         <span className="w-4 h-4 rounded-full bg-[#0284C7]/15 text-[#0284C7] text-[9px] font-bold flex items-center justify-center">
-                          SV
+                          ME
                         </span>
-                        <span>Assigned to: <strong>Sarah Vance (Daughter-in-law)</strong></span>
+                        <span>Assigned to: <strong>You</strong></span>
                       </div>
                     </div>
                   </div>
@@ -404,9 +404,9 @@ export const LandingPageView: React.FC<LandingPageViewProps> = ({ onEnterApp, on
                       </p>
                       <div className="flex items-center gap-1.5 mt-1 text-xs text-[#334155]">
                         <span className="w-4 h-4 rounded-full bg-[#0F766E]/15 text-[#0F766E] text-[9px] font-bold flex items-center justify-center">
-                          NB
+                          VN
                         </span>
-                        <span>Assigned to: <strong>Nurse Beth (Care Aide)</strong></span>
+                        <span>Assigned to: <strong>Home care aide</strong></span>
                       </div>
                     </div>
                   </div>
@@ -440,10 +440,10 @@ export const LandingPageView: React.FC<LandingPageViewProps> = ({ onEnterApp, on
                     <div className="flex items-center justify-between text-xs">
                       <div className="flex items-center gap-2">
                         <span className="w-6 h-6 rounded-full bg-emerald-100 text-[#00685f] font-bold text-[10px] flex items-center justify-center">
-                          DV
+                          YB
                         </span>
                         <div>
-                          <div className="font-semibold text-[#0f172a]">David Vance</div>
+                          <div className="font-semibold text-[#0f172a]">Your brother</div>
                           <div className="text-[11px] text-[#64748b]">Primary Organizer/Lead</div>
                         </div>
                       </div>
@@ -453,10 +453,10 @@ export const LandingPageView: React.FC<LandingPageViewProps> = ({ onEnterApp, on
                     <div className="flex items-center justify-between text-xs">
                       <div className="flex items-center gap-2">
                         <span className="w-6 h-6 rounded-full bg-blue-100 text-blue-700 font-bold text-[10px] flex items-center justify-center">
-                          SV
+                          ME
                         </span>
                         <div>
-                          <div className="font-semibold text-[#0f172a]">Sarah Vance</div>
+                          <div className="font-semibold text-[#0f172a]">You</div>
                           <div className="text-[11px] text-[#64748b]">Daily Physical Care</div>
                         </div>
                       </div>
@@ -466,10 +466,10 @@ export const LandingPageView: React.FC<LandingPageViewProps> = ({ onEnterApp, on
                     <div className="flex items-center justify-between text-xs">
                       <div className="flex items-center gap-2">
                         <span className="w-6 h-6 rounded-full bg-indigo-100 text-indigo-700 font-bold text-[10px] flex items-center justify-center">
-                          MV
+                          YC
                         </span>
                         <div>
-                          <div className="font-semibold text-[#0f172a]">Marcus Vance</div>
+                          <div className="font-semibold text-[#0f172a]">Your cousin</div>
                           <div className="text-[11px] text-[#64748b]">Remote Support & Financial</div>
                         </div>
                       </div>
@@ -479,10 +479,10 @@ export const LandingPageView: React.FC<LandingPageViewProps> = ({ onEnterApp, on
                     <div className="flex items-center justify-between text-xs">
                       <div className="flex items-center gap-2">
                         <span className="w-6 h-6 rounded-full bg-teal-100 text-teal-800 font-bold text-[10px] flex items-center justify-center">
-                          NB
+                          VN
                         </span>
                         <div>
-                          <div className="font-semibold text-[#0f172a]">Nurse Beth RN</div>
+                          <div className="font-semibold text-[#0f172a]">Visiting nurse</div>
                           <div className="text-[11px] text-[#64748b]">Visiting Nurse / Elder Aide</div>
                         </div>
                       </div>
@@ -519,7 +519,7 @@ export const LandingPageView: React.FC<LandingPageViewProps> = ({ onEnterApp, on
                 onClick={() => onEnterApp('overview')}
                 className="text-xs font-semibold text-[#00685f] hover:text-[#004d46] inline-flex items-center gap-1.5 cursor-pointer"
               >
-                <span>Launch live interactive portal for Eleanor Vance</span>
+                <span>Open the Care Portal</span>
                 <ArrowRight className="w-3.5 h-3.5" />
               </button>
             </div>

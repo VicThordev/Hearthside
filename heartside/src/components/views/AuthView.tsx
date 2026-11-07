@@ -24,6 +24,7 @@ import { isDemoMode, isOAuthEnabled } from '../../lib/runtime';
 interface AuthViewProps {
   initialMode?: 'signup' | 'login';
   initialError?: string | null;
+  initialNotice?: string | null;
   onSuccess: (view?: ViewMode) => void;
   onBackToLanding: () => void;
 }
@@ -31,6 +32,7 @@ interface AuthViewProps {
 export const AuthView: React.FC<AuthViewProps> = ({
   initialMode = 'signup',
   initialError = null,
+  initialNotice = null,
   onSuccess,
   onBackToLanding
 }) => {
@@ -47,7 +49,7 @@ export const AuthView: React.FC<AuthViewProps> = ({
   const [seniorPin, setSeniorPin] = useState('');
   const [seniorPinSuccess, setSeniorPinSuccess] = useState(false);
   const [authError, setAuthError] = useState<string | null>(initialError);
-  const [authNotice, setAuthNotice] = useState<string | null>(null);
+  const [authNotice, setAuthNotice] = useState<string | null>(initialNotice);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Password strength calculation

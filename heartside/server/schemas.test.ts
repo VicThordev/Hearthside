@@ -21,3 +21,24 @@ test('document identifiers must be UUIDs', () => {
   assert.equal(documentIdSchema.safeParse('8f14e45f-ceea-4e7a-9f3b-2c1d6a0b9e11').success, true);
   assert.equal(documentIdSchema.safeParse('../etc/passwd').success, false);
 });
+
+test('uploads accept only PDF, JPEG, and PNG files up to 25 MB', async () => {
+  const { uploadRequestSchema } = await import('./schemas.js');
+  assert.equal(uploadRequestSchema.safeParse({ contentType: 'application/pdf', sizeBytes: 1024 }).success, true);
+  assert.equal(uploadRequestSchema.safeParse({ contentType: 'image/png', sizeBytes: 25 * 1024 * 1024 }).success, true);
+  assert.equal(uploadRequestSchema.safeParse({ contentType: 'image/png', sizeBytes: 25 * 1024 * 1024 + 1 }).success, false);
+  assert.equal(uploadRequestSchema.safeParse({ contentType: 'text/html', sizeBytes: 10 }).success, false);
+  assert.equal(uploadRequestSchema.safeParse({ contentType: 'application/pdf', sizeBytes: 0 }).success, false);
+});
+
+test('invites normalise email and reject unknown roles', async () => {
+  const { inviteSchema } = await import('./schemas.js');
+  assert.equal(inviteSchema.parse({ email: ' Nurse@Example.COM ', role: 'clinical' }).email, 'nurse@example.com');
+  assert.equal(inviteSchema.safeParse({ email: 'a@example.com', role: 'admin' }).success, false);
+});
+
+test('task status updates are separate from detail edits', async () => {
+  const { taskUpdateSchema } = await import('./schemas.js');
+  assert.deepEqual(taskUpdateSchema.parse({ status: 'completed' }), { status: 'completed' });
+  assert.equal(taskUpdateSchema.safeParse({ status: 'done' }).success, false);
+});

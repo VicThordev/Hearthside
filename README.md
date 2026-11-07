@@ -41,29 +41,30 @@ The API provides `/healthz`, authenticated circle creation/listing, authenticate
 
 After the first verified sign-in, Hearthside asks the account owner to create a Care Circle. The API creates the recipient and owner membership together, and the browser stores only the selected circle ID; authorization is always rechecked on the server.
 
-### What works today
+### What works in live mode
 
-- Responsive care-coordination user interface.
-- Landing, sign-up/sign-in, dashboard, calendar, tasks, care-team, notes, document-vault, reports, directory, and settings views.
-- In-memory interactions for adding events, notes, documents, and invitations.
-- Local mock content and bundled visual assets.
+Live mode (`VITE_RELEASE_MODE="live"`) shows only the signed-in user's real data, stored in Supabase. The portal code is in `heartside/src/live/`.
 
-### What is simulated
+- **Accounts:** email/password sign-up and sign-in, magic links, password reset, and password change.
+- **Care Circles:** create a circle, rename it, change the time zone, switch between circles, and leave a circle.
+- **Schedule, tasks, and care notes:** create, list, and delete them; mark tasks done; flag critical notes.
+- **Documents:** upload PDF, JPEG, or PNG files up to 25 MB, then open, download, or delete them. Files go directly to the private Supabase bucket through single-use signed upload URLs. The server checks each stored file's real type and size before recording it.
+- **Care team:** invite people by link with a role, change roles, and remove members. The person accepting must sign in with the invited email. Only owners can grant or remove the owner role, and a circle always keeps at least one owner.
+- **Roles:** every API request is checked against `heartside/server/permissions.ts`. For example, restricted helpers cannot see notes or documents.
+- **Activity log:** owners and organizers see an append-only record of changes, invitations, role changes, and document views.
 
-This is important: no interaction below currently has a persistent or secure server implementation.
+### Not built yet
 
-- Google/Apple sign-in until enabled in Supabase Auth, and PIN access. Email/password, magic links, and password reset work in live mode.
-- Care-circle permissions and two-factor authentication.
-- Database persistence, multi-user synchronization, and audit logs.
-- Document uploads, downloads, encrypted storage, sharing, medical-record requests, and exports.
-- Email, SMS, push notifications, calendar syncing, GPS, billing, and device integrations.
-- HIPAA compliance, cryptographic signing, encryption, and emergency escalation.
+- Invitation emails. The app creates a link for the inviter to send, because Hearthside has no mail provider of its own.
+- Editing events, notes, and task details after creation; task comments; medications and vital readings. The database tables exist, but no screens use them yet.
+- Malware scanning of uploads, data export, account deletion, MFA, notifications, calendar sync, and billing.
+- Google/Apple sign-in until those providers are enabled in Supabase Auth.
 
-The UI's care data comes from `heartside/src/data/mockData.ts`; most changes live only in React state and disappear on refresh. Several product actions are intentionally represented by browser alerts, timers, or generated placeholder downloads.
+Demo mode (`VITE_RELEASE_MODE="demo"`) is the fictional preview. Its data comes from `heartside/src/data/mockData.ts` and lasts only until the page reloads.
 
 ## Deploying to Fly.io
 
-One Fly app runs the Docker image in `heartside/`: Express serves the API and the built front end from the same origin. Supabase stays the database, auth, and storage provider. Live-mode portal screens still show sample data behind the preview banner, so do not enter real care data yet.
+One Fly app runs the Docker image in `heartside/`: Express serves the API and the built front end from the same origin. Supabase stays the database, auth, and storage provider. Live-mode screens show only real data from Supabase; demo-mode content never loads in live mode.
 
 **1. Create the app and set the one secret** (from `heartside/`). Change `app` and `APP_URL` in `fly.toml` if the name is taken, and set `primary_region` to the region closest to your Supabase project.
 

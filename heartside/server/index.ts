@@ -8,9 +8,11 @@ import { rateLimit } from 'express-rate-limit';
 import type { User } from '@supabase/supabase-js';
 import { config } from './config.js';
 import { ApiError, errorHandler, notFound } from './http.js';
-import { authenticate, requireCapability, requireUser } from './auth.js';
-import { circleSchema, documentIdSchema, eventSchema, noteSchema } from './schemas.js';
+import { authenticate } from './auth.js';
 import { supabase } from './supabase.js';
+import { careRoutes } from './routes/care.js';
+import { circleRoutes } from './routes/circle.js';
+import { documentRoutes } from './routes/documents.js';
 import { logger } from './logger.js';
 
 const app = express();
@@ -21,7 +23,8 @@ app.use(helmet({
     directives: {
       // The browser talks to Supabase directly for sign-in; helmet's default would block it.
       connectSrc: ["'self'", new URL(config.SUPABASE_URL).origin],
-      imgSrc: ["'self'", 'data:', 'blob:'],
+      // Image previews in the document vault load from short-lived Supabase Storage URLs.
+      imgSrc: ["'self'", 'data:', 'blob:', new URL(config.SUPABASE_URL).origin],
     },
   },
 }));
@@ -81,113 +84,7 @@ app.use('/api/v1', authenticate, rateLimit({
   keyGenerator: (_req, res) => `user:${(res.locals.user as User).id}`,
 }));
 
-app.get('/api/v1/circles', async (_req, res, next) => {
-  try {
-    const user = requireUser(res);
-    const { data, error } = await supabase.from('circle_members')
-      .select('id, role, care_circles (id, name, timezone)')
-      .eq('user_id', user.id)
-      .order('created_at');
-    if (error) throw error;
-    res.json({ data });
-  } catch (error) { next(error); }
-});
-
-app.post('/api/v1/circles', async (req, res, next) => {
-  try {
-    const user = requireUser(res);
-    const input = circleSchema.parse(req.body);
-    const displayName = typeof user.user_metadata.full_name === 'string' ? user.user_metadata.full_name : user.email ?? 'Circle owner';
-    const { data: circle, error } = await supabase.rpc('create_care_circle', {
-      p_name: input.name, p_timezone: input.timezone, p_recipient_name: input.recipientName,
-      p_owner_id: user.id, p_owner_email: user.email ?? '', p_owner_display_name: displayName,
-    });
-    if (error || !circle) throw error ?? new ApiError(500, 'Care Circle creation did not return an identifier.');
-    res.status(201).json({ data: circle });
-  } catch (error) { next(error); }
-});
-
-app.get('/api/v1/events', async (req, res, next) => {
-  try {
-    const { circleId } = await requireCapability(req, res, 'event:read');
-    const { data, error } = await supabase.from('care_events').select('*').eq('circle_id', circleId).order('starts_at');
-    if (error) throw error;
-    res.json({ data });
-  } catch (error) { next(error); }
-});
-
-// Create audit entries are written by the audit_row_change trigger from created_by_member_id.
-app.post('/api/v1/events', async (req, res, next) => {
-  try {
-    const { circleId, memberId } = await requireCapability(req, res, 'event:write');
-    const input = eventSchema.parse(req.body);
-    const { data, error } = await supabase.from('care_events').insert({
-      circle_id: circleId,
-      created_by_member_id: memberId,
-      title: input.title,
-      starts_at: input.startsAt,
-      ends_at: input.endsAt ?? null,
-      category: input.category,
-      assignee_name: input.assigneeName ?? null,
-      location: input.location ?? null,
-      description: input.description ?? null,
-    }).select().single();
-    if (error) throw error;
-    res.status(201).json({ data });
-  } catch (error) { next(error); }
-});
-
-app.get('/api/v1/notes', async (req, res, next) => {
-  try {
-    const { circleId } = await requireCapability(req, res, 'note:read');
-    const { data, error } = await supabase.from('care_notes').select('*').eq('circle_id', circleId).order('created_at', { ascending: false });
-    if (error) throw error;
-    res.json({ data });
-  } catch (error) { next(error); }
-});
-
-app.post('/api/v1/notes', async (req, res, next) => {
-  try {
-    const { circleId, memberId } = await requireCapability(req, res, 'note:write');
-    const input = noteSchema.parse(req.body);
-    const { data, error } = await supabase.from('care_notes').insert({
-      circle_id: circleId,
-      created_by_member_id: memberId,
-      title: input.title,
-      content: input.content,
-      category: input.category,
-      is_critical: input.isCritical,
-    }).select().single();
-    if (error) throw error;
-    res.status(201).json({ data });
-  } catch (error) { next(error); }
-});
-
-app.get('/api/v1/documents', async (req, res, next) => {
-  try {
-    const { circleId } = await requireCapability(req, res, 'document:read');
-    const { data, error } = await supabase.from('documents').select('id, title, filename, content_type, size_bytes, category, created_at, updated_at').eq('circle_id', circleId).order('created_at', { ascending: false });
-    if (error) throw error;
-    res.json({ data });
-  } catch (error) { next(error); }
-});
-
-app.get('/api/v1/documents/:id/download-url', async (req, res, next) => {
-  try {
-    const { circleId, memberId } = await requireCapability(req, res, 'document:read');
-    const documentId = documentIdSchema.safeParse(req.params.id);
-    if (!documentId.success) throw new ApiError(404, 'Document not found.');
-    const { data: document, error } = await supabase.from('documents').select('storage_path').eq('circle_id', circleId).eq('id', documentId.data).maybeSingle();
-    if (error) throw error;
-    if (!document) throw new ApiError(404, 'Document not found.');
-    const { data, error: signingError } = await supabase.storage.from(config.SUPABASE_DOCUMENTS_BUCKET).createSignedUrl(document.storage_path, 60);
-    if (signingError) throw signingError;
-    // Fail closed: a download link is never returned without its audit entry.
-    const { error: auditError } = await supabase.from('audit_events').insert({ circle_id: circleId, actor_member_id: memberId, action: 'download_url_issued', resource_type: 'document', resource_id: documentId.data });
-    if (auditError) throw auditError;
-    res.json({ data: { url: data.signedUrl, expiresInSeconds: 60 } });
-  } catch (error) { next(error); }
-});
+app.use('/api/v1', circleRoutes, careRoutes, documentRoutes);
 
 app.use(notFound);
 app.use(errorHandler);

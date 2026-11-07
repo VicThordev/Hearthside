@@ -13,6 +13,7 @@ const CalendarView = lazy(() => import('./components/views/CalendarView').then((
 const LandingPageView = lazy(() => import('./components/views/LandingPageView').then(({ LandingPageView }) => ({ default: LandingPageView })));
 const AuthView = lazy(() => import('./components/views/AuthView').then(({ AuthView }) => ({ default: AuthView })));
 const ResetPasswordView = lazy(() => import('./components/views/ResetPasswordView').then(({ ResetPasswordView }) => ({ default: ResetPasswordView })));
+const LivePortal = lazy(() => import('./live/LivePortal').then(({ LivePortal }) => ({ default: LivePortal })));
 const CircleSetupView = lazy(() => import('./components/views/CircleSetupView').then(({ CircleSetupView }) => ({ default: CircleSetupView })));
 const CareTeamView = lazy(() => import('./components/views/CareTeamView').then(({ CareTeamView }) => ({ default: CareTeamView })));
 const CareNotesView = lazy(() => import('./components/views/CareNotesView').then(({ CareNotesView }) => ({ default: CareNotesView })));
@@ -42,9 +43,27 @@ import {
 
 type CircleSummary = { id: string; name: string; timezone: string };
 
+// An invitation link (/?invite=TOKEN) must survive sign-up and the email-confirmation round
+// trip, which may open in a new tab, so the token waits in localStorage until someone signs in.
+const PENDING_INVITE_KEY = 'hearthside.pendingInvite';
+const arrivedWithInvite = (() => {
+  if (isDemoMode) return false;
+  const params = new URLSearchParams(window.location.search);
+  const token = params.get('invite');
+  if (!token) return false;
+  try { localStorage.setItem(PENDING_INVITE_KEY, token); } catch { /* storage unavailable: the link must be opened again after sign-in */ }
+  params.delete('invite');
+  window.history.replaceState(null, '', `${window.location.pathname}${params.toString() ? `?${params}` : ''}${window.location.hash}`);
+  return true;
+})();
+function takePendingInvite(): string | null {
+  try { const token = localStorage.getItem(PENDING_INVITE_KEY); localStorage.removeItem(PENDING_INVITE_KEY); return token; } catch { return null; }
+}
+
 // A link from an auth email should finish in the portal, or explain why it failed.
 function initialView(): ViewMode {
   if (!isDemoMode && authRedirect.hasSession) return 'overview';
+  if (arrivedWithInvite) return 'auth';
   if (!isDemoMode && authRedirect.error) return 'auth';
   return getSavedView() ?? 'landing';
 }
@@ -76,6 +95,7 @@ export default function App() {
   const [circles, setCircles] = useState<CircleSummary[]>([]);
   const [activeCircleId, setActiveCircle] = useState<string | null>(null);
   const [circleReload, setCircleReload] = useState(0);
+  const [portalNotice, setPortalNotice] = useState<string | null>(null);
 
   useEffect(() => { saveView(currentView); }, [currentView]);
 
@@ -106,7 +126,19 @@ export default function App() {
     if (isDemoMode) return;
     if (!user) { setCircleState('loading'); return; }
     let cancelled = false;
-    void apiFetch<{ data: Array<{ care_circles: CircleSummary | null }> }>('/api/v1/circles')
+    const acceptInvite = async () => {
+      const token = takePendingInvite();
+      if (!token) return;
+      try {
+        const { data } = await apiFetch<{ data: { circleId: string } }>('/api/v1/invites/accept', { method: 'POST', body: JSON.stringify({ token }) });
+        setActiveCircleId(data.circleId);
+        setPortalNotice('Welcome! You have joined the Care Circle.');
+      } catch (error) {
+        setPortalNotice(error instanceof Error ? error.message : 'The invitation could not be accepted.');
+      }
+    };
+    void acceptInvite()
+      .then(() => apiFetch<{ data: Array<{ care_circles: CircleSummary | null }> }>('/api/v1/circles'))
       .then(({ data }) => {
         if (cancelled) return;
         const availableCircles = data.flatMap(({ care_circles }) => care_circles ? [care_circles] : []);
@@ -240,7 +272,7 @@ export default function App() {
   // Dedicated Sign Up / Log In View
   if (currentView === 'auth') {
     return (
-      <>{isDemoMode && <DemoBanner />}<Suspense fallback={<div className="min-h-screen grid place-items-center">Loading sign-in…</div>}><AuthView initialMode={authMode} initialError={isDemoMode ? null : authRedirect.error} onSuccess={(view) => setCurrentView(view || 'overview')} onBackToLanding={() => setCurrentView('landing')} /></Suspense></>
+      <>{isDemoMode && <DemoBanner />}<Suspense fallback={<div className="min-h-screen grid place-items-center">Loading sign-in…</div>}><AuthView initialMode={authMode} initialError={isDemoMode ? null : authRedirect.error} initialNotice={arrivedWithInvite ? 'You have been invited to a Care Circle. Create an account or sign in with the email address the invitation was sent to.' : null} onSuccess={(view) => setCurrentView(view || 'overview')} onBackToLanding={() => setCurrentView('landing')} /></Suspense></>
     );
   }
 
@@ -257,12 +289,29 @@ export default function App() {
   }
 
   if (circleState === 'needs-setup' && !isDemoMode) {
-    return <Suspense fallback={<div className="min-h-screen grid place-items-center">Loading setup…</div>}><CircleSetupView onComplete={() => { setCircleState('loading'); setCircleReload((value) => value + 1); }} /></Suspense>;
+    return <Suspense fallback={<div className="min-h-screen grid place-items-center">Loading setup…</div>}>{portalNotice && <p role="status" className="bg-amber-50 px-4 py-2.5 text-center text-sm text-amber-950">{portalNotice}</p>}<CircleSetupView onComplete={() => { setCircleState('loading'); setCircleReload((value) => value + 1); }} /></Suspense>;
   }
 
   if (circleState === 'error' && !isDemoMode) {
     return <div className="min-h-screen grid place-items-center bg-[#F6F9FF] p-6 text-center"><div><p className="font-semibold text-[#081d2c]">We could not load your Care Circle.</p><p className="mt-2 text-sm text-[#64748B]">Confirm that the API server is running and your Supabase environment variables are configured.</p><button onClick={() => { setCircleState('loading'); setCircleReload((value) => value + 1); }} className="mt-4 rounded-lg bg-[#00685f] px-4 py-2 text-sm font-semibold text-white">Try again</button></div></div>;
   }
+  // Live mode renders only real Care Circle data; the screens below are the fictional preview.
+  if (!isDemoMode && activeCircleId) {
+    return <Suspense fallback={<div className="min-h-screen grid place-items-center bg-[#F6F9FF] text-sm text-[#475569]">Loading your Care Circle…</div>}>
+      <LivePortal
+        key={activeCircleId}
+        circles={circles}
+        activeCircleId={activeCircleId}
+        onSelectCircle={selectCircle}
+        onCirclesChanged={() => setCircleReload((value) => value + 1)}
+        onLeftCircle={() => { selectCircle(null); setCircleState('loading'); setCircleReload((value) => value + 1); }}
+        onSignOut={() => { selectCircle(null); void signOut(); setCurrentView('landing'); }}
+        notice={portalNotice}
+        onDismissNotice={() => setPortalNotice(null)}
+      />
+    </Suspense>;
+  }
+
 
   return (
     <Suspense fallback={<div className="min-h-screen grid place-items-center bg-[#F6F9FF] text-sm text-[#475569]">Loading view…</div>}>
