@@ -1,0 +1,50 @@
+# Deploy from this directory: fly deploy
+# The service-role key is a Fly secret, never a value in this file (see README).
+app = 'hearthside'
+primary_region = 'iad'
+kill_signal = 'SIGTERM'
+kill_timeout = '15s'
+
+[build]
+  dockerfile = 'Dockerfile'
+
+# Browser-visible values, compiled into the bundle. The anon key is public by design:
+# it ships to every visitor and row-level security protects the data.
+[build.args]
+  VITE_SUPABASE_URL = 'https://ifygtsxsrfreqsxmbeiw.supabase.co'
+  VITE_SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImlmeWd0c3hzcmZyZXFzeG1iZWl3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTMyNzUyNzQsImV4cCI6MjEwODg1MTI3NH0.4OACf8zpafp4jrJ2U-ul-AXlJGCS3I847yy_frIlhFE'
+  VITE_RELEASE_MODE = 'live'
+  # Comma-separated, e.g. 'google,apple'. List a provider only after enabling it in Supabase Auth.
+  VITE_OAUTH_PROVIDERS = ''
+
+[env]
+  NODE_ENV = 'production'
+  PORT = '8080'
+  APP_URL = 'https://hearthside.fly.dev'
+  SUPABASE_URL = 'https://ifygtsxsrfreqsxmbeiw.supabase.co'
+  SUPABASE_DOCUMENTS_BUCKET = 'care-documents'
+  # Fly's X-Forwarded-For ends with the app's own IP, so the client is second from the right.
+  TRUST_PROXY_HOPS = '2'
+
+[http_service]
+  internal_port = 8080
+  force_https = true
+  auto_stop_machines = 'stop'
+  auto_start_machines = true
+  min_machines_running = 1
+
+  [http_service.concurrency]
+    type = 'requests'
+    soft_limit = 200
+    hard_limit = 250
+
+  [[http_service.checks]]
+    method = 'GET'
+    path = '/healthz'
+    interval = '15s'
+    timeout = '5s'
+    grace_period = '10s'
+
+[[vm]]
+  size = 'shared-cpu-1x'
+  memory = '512mb'

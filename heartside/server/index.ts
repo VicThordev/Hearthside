@@ -1,4 +1,6 @@
 import crypto from 'node:crypto';
+import path from 'node:path';
+import compression from 'compression';
 import express, { type RequestHandler } from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
@@ -14,12 +16,22 @@ import { logger } from './logger.js';
 const app = express();
 app.disable('x-powered-by');
 app.set('trust proxy', config.TRUST_PROXY_HOPS);
-app.use(helmet());
-app.use(cors({ origin: config.APP_URL, methods: ['GET', 'POST', 'PATCH', 'DELETE'], allowedHeaders: ['Authorization', 'Content-Type', 'X-Care-Circle-Id'] }));
-app.use(express.json({ limit: '1mb' }));
-// Per-IP ceiling for all traffic, including unauthenticated requests. It is generous
-// because households and clinics often share an address; the per-user limit below is tighter.
-app.use(rateLimit({ windowMs: 15 * 60 * 1000, limit: 1000, standardHeaders: 'draft-8', legacyHeaders: false }));
+app.use(helmet({
+  contentSecurityPolicy: {
+    directives: {
+      // The browser talks to Supabase directly for sign-in; helmet's default would block it.
+      connectSrc: ["'self'", new URL(config.SUPABASE_URL).origin],
+      imgSrc: ["'self'", 'data:', 'blob:'],
+    },
+  },
+}));
+app.use(compression());
+
+// Liveness reports only that the process is serving; it does not touch the database.
+// It sits above the logger and rate limits because the platform polls it every few seconds.
+app.get('/healthz', (_req, res) => {
+  res.json({ status: 'ok', service: 'hearthside-api' });
+});
 
 app.use(((req, res, next) => {
   const requestId = crypto.randomUUID();
@@ -30,10 +42,26 @@ app.use(((req, res, next) => {
   next();
 }) satisfies RequestHandler);
 
-// Liveness reports only that the process is serving; it does not touch the database.
-app.get('/healthz', (_req, res) => {
-  res.json({ status: 'ok', service: 'hearthside-api' });
-});
+// In production this process also serves the built front end, so the browser and API share an origin.
+// Static files sit above the rate limits: one page load fetches dozens of them.
+if (config.NODE_ENV === 'production') {
+  const clientDir = path.resolve('dist');
+  // Vite content-hashes everything in /assets, so those files can be cached forever.
+  app.use('/assets', express.static(path.join(clientDir, 'assets'), { immutable: true, maxAge: '1y' }), notFound);
+  app.use(express.static(clientDir, { index: false, maxAge: '1h' }));
+  // Auth emails redirect back to the app, so any non-API page must return the shell. It must never be
+  // cached, or browsers keep asking for hashed bundles that the next deploy removed.
+  app.get(/^\/(?!api\/|readyz$)/, (_req, res) => {
+    res.setHeader('Cache-Control', 'no-cache');
+    res.sendFile(path.join(clientDir, 'index.html'));
+  });
+}
+
+app.use(cors({ origin: config.APP_URL, methods: ['GET', 'POST', 'PATCH', 'DELETE'], allowedHeaders: ['Authorization', 'Content-Type', 'X-Care-Circle-Id'] }));
+app.use(express.json({ limit: '1mb' }));
+// Per-IP ceiling for all API traffic, including unauthenticated requests. It is generous
+// because households and clinics often share an address; the per-user limit below is tighter.
+app.use(rateLimit({ windowMs: 15 * 60 * 1000, limit: 1000, standardHeaders: 'draft-8', legacyHeaders: false }));
 
 app.get('/readyz', async (_req, res, next) => {
   try {

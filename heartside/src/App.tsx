@@ -7,10 +7,12 @@ import { apiFetch, getActiveCircleId, setActiveCircleId } from './lib/api';
 import { DemoBanner } from './components/DemoBanner';
 import { ErrorBoundary } from './components/ErrorBoundary';
 import { getSavedView, isDemoMode, saveView } from './lib/runtime';
+import { authRedirect } from './lib/supabase';
 
 const CalendarView = lazy(() => import('./components/views/CalendarView').then(({ CalendarView }) => ({ default: CalendarView })));
 const LandingPageView = lazy(() => import('./components/views/LandingPageView').then(({ LandingPageView }) => ({ default: LandingPageView })));
 const AuthView = lazy(() => import('./components/views/AuthView').then(({ AuthView }) => ({ default: AuthView })));
+const ResetPasswordView = lazy(() => import('./components/views/ResetPasswordView').then(({ ResetPasswordView }) => ({ default: ResetPasswordView })));
 const CircleSetupView = lazy(() => import('./components/views/CircleSetupView').then(({ CircleSetupView }) => ({ default: CircleSetupView })));
 const CareTeamView = lazy(() => import('./components/views/CareTeamView').then(({ CareTeamView }) => ({ default: CareTeamView })));
 const CareNotesView = lazy(() => import('./components/views/CareNotesView').then(({ CareNotesView }) => ({ default: CareNotesView })));
@@ -40,10 +42,17 @@ import {
 
 type CircleSummary = { id: string; name: string; timezone: string };
 
+// A link from an auth email should finish in the portal, or explain why it failed.
+function initialView(): ViewMode {
+  if (!isDemoMode && authRedirect.hasSession) return 'overview';
+  if (!isDemoMode && authRedirect.error) return 'auth';
+  return getSavedView() ?? 'landing';
+}
+
 export default function App() {
-  const { user, loading, signOut } = useAuth();
-  const [currentView, setCurrentView] = useState<ViewMode>(() => getSavedView() ?? 'landing');
-  const [authMode, setAuthMode] = useState<'signup' | 'login'>('signup');
+  const { user, loading, recoveringPassword, signOut } = useAuth();
+  const [currentView, setCurrentView] = useState<ViewMode>(initialView);
+  const [authMode, setAuthMode] = useState<'signup' | 'login'>(authRedirect.error ? 'login' : 'signup');
   
   // App state
   const [events, setEvents] = useState<ScheduleEvent[]>([]);
@@ -69,6 +78,15 @@ export default function App() {
   const [circleReload, setCircleReload] = useState(0);
 
   useEffect(() => { saveView(currentView); }, [currentView]);
+
+  useEffect(() => {
+    if (authRedirect.error) window.history.replaceState(null, '', window.location.pathname);
+  }, []);
+
+  // Covers a session that arrives while the sign-in screen is open, such as a link opened in another tab.
+  useEffect(() => {
+    if (!isDemoMode && user && currentView === 'auth') setCurrentView('overview');
+  }, [user, currentView]);
 
   useEffect(() => {
     if (!isDemoMode) return;
@@ -187,6 +205,11 @@ export default function App() {
     else alert('This workflow is unavailable until its screen is connected to the authenticated API.');
   };
 
+  if (recoveringPassword && !isDemoMode) {
+    if (loading) return <div className="min-h-screen grid place-items-center bg-[#F6F9FF] text-sm text-[#475569]">Loading secure session…</div>;
+    return <Suspense fallback={<div className="min-h-screen grid place-items-center">Loading…</div>}><ResetPasswordView onComplete={() => setCurrentView('overview')} /></Suspense>;
+  }
+
   // Dedicated full-width experience for Public Landing Page
   if (currentView === 'landing') {
     return (
@@ -217,7 +240,7 @@ export default function App() {
   // Dedicated Sign Up / Log In View
   if (currentView === 'auth') {
     return (
-      <>{isDemoMode && <DemoBanner />}<Suspense fallback={<div className="min-h-screen grid place-items-center">Loading sign-in…</div>}><AuthView initialMode={authMode} onSuccess={(view) => setCurrentView(view || 'overview')} onBackToLanding={() => setCurrentView('landing')} /></Suspense></>
+      <>{isDemoMode && <DemoBanner />}<Suspense fallback={<div className="min-h-screen grid place-items-center">Loading sign-in…</div>}><AuthView initialMode={authMode} initialError={isDemoMode ? null : authRedirect.error} onSuccess={(view) => setCurrentView(view || 'overview')} onBackToLanding={() => setCurrentView('landing')} /></Suspense></>
     );
   }
 
@@ -259,7 +282,8 @@ export default function App() {
 
       {/* Main Content Area */}
       <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
-        {isDemoMode && <DemoBanner />}
+        {/* Shown in live mode too: most portal screens still render sample data, not the user's. */}
+        <DemoBanner />
         {/* Top Header */}
         <TopHeader
           currentView={currentView}

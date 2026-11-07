@@ -4,6 +4,11 @@ import type { ViewMode } from '../types';
 // after its backend, policies, and operations are ready.
 export const isDemoMode = import.meta.env.VITE_RELEASE_MODE !== 'live';
 
+// Social sign-in buttons are shown only for providers enabled in Supabase Auth, because
+// a disabled provider sends the user to a raw JSON error page.
+const oauthProviders = String(import.meta.env.VITE_OAUTH_PROVIDERS ?? '').split(',').map((name) => name.trim());
+export const isOAuthEnabled = (provider: 'google' | 'apple') => isDemoMode || oauthProviders.includes(provider);
+
 const SAVED_VIEW_KEY = 'hearthside.currentView';
 const portalViews: readonly ViewMode[] = ['overview', 'calendar', 'tasks', 'care-team', 'care-notes', 'vault', 'directory', 'reports', 'settings'];
 

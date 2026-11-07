@@ -52,7 +52,7 @@ After the first verified sign-in, Hearthside asks the account owner to create a 
 
 This is important: no interaction below currently has a persistent or secure server implementation.
 
-- Authentication, Google/Apple sign-in, magic links, password reset, and PIN access.
+- Google/Apple sign-in until enabled in Supabase Auth, and PIN access. Email/password, magic links, and password reset work in live mode.
 - Care-circle permissions and two-factor authentication.
 - Database persistence, multi-user synchronization, and audit logs.
 - Document uploads, downloads, encrypted storage, sharing, medical-record requests, and exports.
@@ -60,6 +60,40 @@ This is important: no interaction below currently has a persistent or secure ser
 - HIPAA compliance, cryptographic signing, encryption, and emergency escalation.
 
 The UI's care data comes from `heartside/src/data/mockData.ts`; most changes live only in React state and disappear on refresh. Several product actions are intentionally represented by browser alerts, timers, or generated placeholder downloads.
+
+## Deploying to Fly.io
+
+One Fly app runs the Docker image in `heartside/`: Express serves the API and the built front end from the same origin. Supabase stays the database, auth, and storage provider. Live-mode portal screens still show sample data behind the preview banner, so do not enter real care data yet.
+
+**1. Create the app and set the one secret** (from `heartside/`). Change `app` and `APP_URL` in `fly.toml` if the name is taken, and set `primary_region` to the region closest to your Supabase project.
+
+```bash
+fly apps create hearthside
+fly secrets set SUPABASE_SERVICE_ROLE_KEY="$(grep -E '^SUPABASE_SERVICE_ROLE_KEY=' .env | cut -d= -f2- | tr -d '"')" --stage
+```
+
+**2. Configure Supabase Auth** in the dashboard under Authentication → URL Configuration. Sign-up, magic links, and password reset all depend on this.
+
+- Set **Site URL** to `https://hearthside.fly.dev`.
+- Add `https://hearthside.fly.dev` to **Redirect URLs**.
+- Under Authentication → SMTP, configure a custom SMTP provider. The built-in sender only delivers to your project's team members and is heavily rate limited, so real users would never receive confirmation emails.
+
+**3. Deploy and check.**
+
+```bash
+fly deploy
+curl https://hearthside.fly.dev/readyz   # {"status":"ready"} once the database is reachable and migrated
+```
+
+Apply new files in `heartside/supabase/migrations/` before deploying code that needs them. `fly.toml` holds browser-safe build values, including the public anon key; `VITE_*` changes need a new `fly deploy`. To enable Google or Apple sign-in, turn the provider on in Supabase, then add it to `VITE_OAUTH_PROVIDERS` in `fly.toml`.
+
+To run the production image locally:
+
+```bash
+set -a; . ./.env; set +a
+docker build -t hearthside --build-arg VITE_SUPABASE_URL="$VITE_SUPABASE_URL" --build-arg VITE_SUPABASE_ANON_KEY="$VITE_SUPABASE_ANON_KEY" .
+docker run --rm -p 3000:8080 -e PORT=8080 -e APP_URL=http://localhost:3000 -e SUPABASE_URL="$SUPABASE_URL" -e SUPABASE_SERVICE_ROLE_KEY="$SUPABASE_SERVICE_ROLE_KEY" hearthside
+```
 
 ## Deployment choices
 

@@ -1,0 +1,18 @@
+# Keep local secrets and local-only settings out of the build context. A local .env
+# would also be picked up by Vite and bake VITE_API_URL=localhost into the bundle.
+.env*
+!.env.example
+
+node_modules
+dist
+build
+coverage
+.aistudio
+.git
+.github
+*.log
+Dockerfile
+.dockerignore
+fly.toml
+README.md
+supabase

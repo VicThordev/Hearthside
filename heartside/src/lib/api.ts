@@ -1,5 +1,7 @@
-const apiUrl = import.meta.env.VITE_API_URL?.replace(/\/$/, '');
 import { supabase } from './supabase';
+
+// A production build with no VITE_API_URL calls the server that delivered the page.
+const apiUrl = (import.meta.env.VITE_API_URL || (import.meta.env.PROD ? window.location.origin : ''))?.replace(/\/$/, '');
 
 export class ApiClientError extends Error {}
 

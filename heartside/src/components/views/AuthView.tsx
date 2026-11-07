@@ -19,15 +19,18 @@ import {
 } from 'lucide-react';
 import { ViewMode } from '../../types';
 import { useAuth } from '../../auth/AuthProvider';
+import { isDemoMode, isOAuthEnabled } from '../../lib/runtime';
 
 interface AuthViewProps {
   initialMode?: 'signup' | 'login';
+  initialError?: string | null;
   onSuccess: (view?: ViewMode) => void;
   onBackToLanding: () => void;
 }
 
 export const AuthView: React.FC<AuthViewProps> = ({
   initialMode = 'signup',
+  initialError = null,
   onSuccess,
   onBackToLanding
 }) => {
@@ -43,7 +46,7 @@ export const AuthView: React.FC<AuthViewProps> = ({
   const [showSeniorHelpModal, setShowSeniorHelpModal] = useState(false);
   const [seniorPin, setSeniorPin] = useState('');
   const [seniorPinSuccess, setSeniorPinSuccess] = useState(false);
-  const [authError, setAuthError] = useState<string | null>(null);
+  const [authError, setAuthError] = useState<string | null>(initialError);
   const [authNotice, setAuthNotice] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -82,6 +85,7 @@ export const AuthView: React.FC<AuthViewProps> = ({
 
   const handleMagicLink = async () => {
     setAuthError(null); setAuthNotice(null);
+    if (!email) { setAuthError('Enter your email address first.'); return; }
     try {
       await signInWithMagicLink(email);
       setMagicLinkSent(true); setAuthNotice(`Magic link sent to ${email}.`);
@@ -95,6 +99,7 @@ export const AuthView: React.FC<AuthViewProps> = ({
 
   const handlePasswordReset = async () => {
     setAuthError(null); setAuthNotice(null);
+    if (!email) { setAuthError('Enter your email address first.'); return; }
     try { await resetPassword(email); setAuthNotice(`Password reset instructions were sent to ${email}.`); }
     catch (error) { setAuthError(error instanceof Error ? error.message : 'Unable to send password reset instructions.'); }
   };
@@ -121,9 +126,11 @@ export const AuthView: React.FC<AuthViewProps> = ({
           <span>Back to Landing Page</span>
         </button>
 
-        <span className="text-[11px] font-medium text-[#64748b]">
-          Eleanor Vance's Care Circle Demo
-        </span>
+        {isDemoMode && (
+          <span className="text-[11px] font-medium text-[#64748b]">
+            Eleanor Vance's Care Circle Demo
+          </span>
+        )}
       </div>
 
       {/* Brand Header */}
@@ -186,15 +193,16 @@ export const AuthView: React.FC<AuthViewProps> = ({
           </h2>
           <p className="text-xs sm:text-sm text-[#64748b] leading-relaxed mt-1">
             {mode === 'signup'
-              ? 'Join over 12,000 families bringing calm, dignity, and shared coordination to loved ones.'
-              : "Sign in to check Eleanor Vance's daily care schedule and coordinate with family."}
+              ? 'Bring calm, dignity, and shared coordination to the people you care for.'
+              : 'Sign in to check the daily care schedule and coordinate with family.'}
           </p>
         </div>
 
         {/* Social Auth Buttons */}
+        {(isOAuthEnabled('google') || isOAuthEnabled('apple')) && (<>
         <div className="space-y-3 mb-6">
           {/* Continue with Google */}
-          <button
+          {isOAuthEnabled('google') && <button
             type="button"
             onClick={() => void handleOAuth('google')}
             className="w-full flex items-center justify-center gap-3 py-3 px-4 rounded-xl border border-[#E2E8F0] bg-white hover:bg-[#F8FAFC] text-xs sm:text-sm font-semibold text-[#0f172a] shadow-2xs hover:shadow-xs transition-all cursor-pointer"
@@ -218,10 +226,10 @@ export const AuthView: React.FC<AuthViewProps> = ({
               />
             </svg>
             <span>Continue with Google</span>
-          </button>
+          </button>}
 
           {/* Continue with Apple */}
-          <button
+          {isOAuthEnabled('apple') && <button
             type="button"
             onClick={() => void handleOAuth('apple')}
             className="w-full flex items-center justify-center gap-3 py-3 px-4 rounded-xl border border-[#E2E8F0] bg-white hover:bg-[#F8FAFC] text-xs sm:text-sm font-semibold text-[#0f172a] shadow-2xs hover:shadow-xs transition-all cursor-pointer"
@@ -230,7 +238,7 @@ export const AuthView: React.FC<AuthViewProps> = ({
               <path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.81-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M15.97 6.87c.68-.82 1.13-1.96 1.01-3.1-.97.04-2.15.65-2.85 1.47-.61.71-1.14 1.88-1 2.99 1.08.08 2.16-.54 2.84-1.36z" />
             </svg>
             <span>Continue with Apple</span>
-          </button>
+          </button>}
         </div>
 
         {/* Divider */}
@@ -240,6 +248,7 @@ export const AuthView: React.FC<AuthViewProps> = ({
             OR CONTINUE WITH SECURE EMAIL
           </span>
         </div>
+        </>)}
 
         {/* Form */}
         <form onSubmit={handleSubmit} className="space-y-4">
@@ -295,6 +304,7 @@ export const AuthView: React.FC<AuthViewProps> = ({
                 id="accountPassword"
                 type={showPassword ? 'text' : 'password'}
                 required
+                minLength={mode === 'signup' ? 8 : undefined}
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="Minimum 8 characters"
@@ -327,8 +337,8 @@ export const AuthView: React.FC<AuthViewProps> = ({
             )}
           </div>
 
-          {/* Invite Code Checkbox (Sign Up Mode) */}
-          {mode === 'signup' && (
+          {/* Invite Code Checkbox (Sign Up Mode). Invitations do not exist yet outside the preview. */}
+          {mode === 'signup' && isDemoMode && (
             <div className="p-3.5 rounded-xl bg-[#EFF6FF]/60 border border-[#DBEAFE] space-y-2">
               <label className="flex items-start gap-2.5 cursor-pointer">
                 <input
@@ -427,8 +437,8 @@ export const AuthView: React.FC<AuthViewProps> = ({
           </button>
         </div>
 
-        {/* Shared Tablet / Telephone Help */}
-        <div className="mt-5 pt-4 border-t border-[#F1F5F9] text-center">
+        {/* Shared Tablet / Telephone Help. The PIN and hotline are preview-only. */}
+        {isDemoMode && <div className="mt-5 pt-4 border-t border-[#F1F5F9] text-center">
           <button
             type="button"
             onClick={() => setShowSeniorHelpModal(true)}
@@ -437,7 +447,7 @@ export const AuthView: React.FC<AuthViewProps> = ({
             <Smartphone className="w-3.5 h-3.5" />
             <span>Logging in on a shared elder tablet or need telephone help?</span>
           </button>
-        </div>
+        </div>}
       </div>
 
       {/* 3 Value Proposition Cards Below */}
@@ -477,14 +487,14 @@ export const AuthView: React.FC<AuthViewProps> = ({
       </div>
 
       {/* Footer Support Helpline */}
-      <p className="mt-8 text-xs text-[#64748b] text-center max-w-md">
+      {isDemoMode && <p className="mt-8 text-xs text-[#64748b] text-center max-w-md">
         Questions? Reach our Care Concierge 24/7 at{' '}
         <a href="mailto:support@hearthsidecare.org" className="text-[#00685f] font-semibold hover:underline">
           support@hearthsidecare.org
         </a>{' '}
         or{' '}
         <span className="font-semibold text-[#0f172a]">1-800-HEARTH-CARE</span>
-      </p>
+      </p>}
 
       {/* Senior Tablet / Telephone Modal */}
       {showSeniorHelpModal && (

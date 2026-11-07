@@ -1,5 +1,15 @@
 import { createClient, type SupabaseClient } from '@supabase/supabase-js';
 
+// Links in auth emails return here with their result in the URL hash. It is read before
+// createClient runs because the client strips the hash and may announce the result before
+// React has subscribed to it.
+const redirectParams = new URLSearchParams(window.location.hash.slice(1));
+export const authRedirect = {
+  isRecovery: redirectParams.get('type') === 'recovery',
+  hasSession: redirectParams.has('access_token'),
+  error: redirectParams.get('error_description'),
+};
+
 const url = import.meta.env.VITE_SUPABASE_URL;
 const anonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
 
